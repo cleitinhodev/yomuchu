@@ -1,6 +1,6 @@
 {
   "name": "yomuchu",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Yomuchu — leitor de mangá e quadrinhos com livro virtual flutuante na área de trabalho",
   "main": "src/main.js",
   "scripts": {
