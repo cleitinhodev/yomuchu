@@ -1,0 +1,97 @@
+{
+  "name": "yomuchu",
+  "version": "0.4.1",
+  "description": "Yomuchu — leitor de mangá e quadrinhos com livro virtual flutuante na área de trabalho",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:opaco": "electron . --sem-transparencia",
+    "amostras": "python3 tools/gerar_amostras.py",
+    "test": "node tests/e2e.js",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist:win": "electron-builder --win nsis zip",
+    "dist": "electron-builder --linux AppImage deb --win nsis zip"
+  },
+  "author": {
+    "name": "Bugzinho (cleitinhodev)",
+    "url": "https://www.bugzinho.com/"
+  },
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "playwright-core": "^1.64.0"
+  },
+  "productName": "Yomuchu",
+  "homepage": "https://www.bugzinho.com/",
+  "build": {
+    "appId": "br.bugzinho.yomuchu",
+    "productName": "Yomuchu",
+    "artifactName": "Yomuchu-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "build/icon.ico",
+      "build/icon-small.png",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Graphics",
+      "icon": "build/icons",
+      "executableName": "yomuchu",
+      "synopsis": "Leitor de mangá com livro virtual",
+      "syncDesktopName": true,
+      "desktop": {
+        "entry": {
+          "Name": "Yomuchu",
+          "Comment": "Leitor de mangá com livro virtual",
+          "Keywords": "manga;mangá;quadrinhos;comic;leitor;reader;yomuchu;"
+        }
+      }
+    },
+    "deb": {
+      "depends": []
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "shortcutName": "Yomuchu",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "electronLanguages": [
+      "pt-BR",
+      "en-US"
+    ],
+    "compression": "maximum",
+    "afterPack": "build/afterPack.js"
+  },
+  "desktopName": "yomuchu.desktop"
+}

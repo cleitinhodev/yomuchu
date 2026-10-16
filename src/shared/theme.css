@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Yomuchu — paleta e temas (compartilhado pela biblioteca e pelo leitor)
+   --------------------------------------------------------------------------
+   ONDE MUDAR AS CORES: este é o único lugar. As 3 cores da marca ficam logo
+   abaixo; o resto são "papéis" (fundo, texto, botão, foco…) que apontam para elas.
+   O tema escuro é o padrão; o claro é ativado por <html data-theme="light">.
+   ========================================================================== */
+:root {
+  /* ---- cores da marca (iguais nos dois temas) ---- */
+  --lilac:  #c210ef;   /* botões primários e destaques */
+  --purple: #5623ab;   /* superfícies de destaque, 2º tom do degradê */
+  --aqua:   #4ffff0;   /* foco, progresso, links e pequenos realces */
+
+  /* ---- tema ESCURO (padrão): neutros bem escuros, puxados para o roxo ---- */
+  --bg:          #0f0a18;
+  --bg2:         #170f26;                 /* diálogos */
+  --panel:       #1e1533;                 /* campos, botões neutros */
+  --panel-hover: #2a1d47;
+  --raised:      #261a40;                 /* menus, avisos, teclas */
+  --line:        rgba(190, 150, 255, .15);
+  --text:        #f4effc;
+  --muted:       #b7a9d1;
+
+  --accent:      var(--lilac);            /* tudo que é interativo/ativo */
+  --on-accent:   #ffffff;                 /* texto sobre lilás/roxo (contraste AA) */
+  --accent-soft: rgba(194, 16, 239, .18);
+  --surface:     var(--purple);           /* superfícies de destaque (abas, cartões ativos) */
+  --link:        var(--aqua);
+  --hl:          var(--aqua);             /* rótulos pequenos em destaque */
+  --focus:       var(--aqua);
+  --focus-ring:  0 0 0 3px rgba(79, 255, 240, .35);
+
+  --grad:          linear-gradient(135deg, var(--lilac) 0%, var(--purple) 100%);
+  --grad-progress: linear-gradient(90deg, var(--purple), var(--lilac) 62%, var(--aqua));
+  --grad-title:    linear-gradient(100deg, var(--lilac) 10%, var(--aqua) 110%);   /* nome "Yomuchu" */
+  --glow:          rgba(194, 16, 239, .38);        /* sombra colorida dos botões */
+
+  --hover:       rgba(255, 255, 255, .08);
+  --track:       rgba(255, 255, 255, .14);         /* trilho de barras e sliders */
+  --switch-off:  #3b2c5c;
+  --scroll:      rgba(190, 150, 255, .22);
+  --glass:       rgba(18, 11, 31, .84);            /* barras do leitor */
+  --glass-solid: rgba(18, 11, 31, .96);
+  --scrim:       rgba(8, 4, 16, .62);              /* fundo atrás de diálogos */
+  --shadow-sm:   rgba(0, 0, 0, .35);
+  --shadow-md:   rgba(0, 0, 0, .5);
+  --shadow-lg:   rgba(0, 0, 0, .62);
+  --cover-bg:    #2a1f40;
+  --stack1:      #46365f;                          /* "pilha" atrás de uma série */
+  --stack2:      #33274a;
+  --page-glow1:  rgba(194, 16, 239, .16);
+  --page-glow2:  rgba(86, 35, 171, .30);
+  --ok:          #35c47a;
+  --danger:      #d6243f;
+  --danger-soft: rgba(255, 94, 108, .14);
+  --danger-line: rgba(255, 94, 108, .55);
+
+  --radius: 14px;
+  color-scheme: dark;
+}
+
+/* ---- tema CLARO: as mesmas 3 cores sobre neutros claros com um toque de lilás ---- */
+:root[data-theme="light"] {
+  --bg:          #f5f0fb;
+  --bg2:         #fcfaff;
+  --panel:       #ece4f7;
+  --panel-hover: #e0d4f2;
+  --raised:      #ffffff;
+  --line:        rgba(86, 35, 171, .18);
+  --text:        #1f1430;
+  --muted:       #55456f;
+
+  --accent-soft: rgba(194, 16, 239, .10);
+  --link:        var(--purple);            /* o azul-claro não tem contraste como texto sobre claro */
+  --hl:          var(--purple);
+  --focus:       var(--purple);
+  --focus-ring:  0 0 0 3px rgba(79, 255, 240, .75);
+
+  --grad-title:  linear-gradient(100deg, var(--purple) 0%, var(--lilac) 100%);
+  --glow:        rgba(194, 16, 239, .28);
+  --hover:       rgba(86, 35, 171, .09);
+  --track:       rgba(86, 35, 171, .16);
+  --switch-off:  #b9a8d6;
+  --scroll:      rgba(86, 35, 171, .28);
+  --glass:       rgba(252, 250, 255, .88);
+  --glass-solid: rgba(252, 250, 255, .97);
+  --scrim:       rgba(40, 20, 80, .38);
+  --shadow-sm:   rgba(60, 30, 110, .22);
+  --shadow-md:   rgba(60, 30, 110, .30);
+  --shadow-lg:   rgba(60, 30, 110, .38);
+  --cover-bg:    #d9ccee;
+  --stack1:      #c9b8e6;
+  --stack2:      #b8a3dc;
+  --page-glow1:  rgba(194, 16, 239, .10);
+  --page-glow2:  rgba(86, 35, 171, .12);
+  --danger-soft: rgba(214, 36, 63, .10);
+  --danger-line: rgba(214, 36, 63, .55);
+  color-scheme: light;
+}
+
+/* barras de rolagem (todas as janelas) */
+::-webkit-scrollbar { width: 12px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 8px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--purple); background-clip: padding-box; border: 3px solid transparent; }
+::-webkit-scrollbar-track { background: transparent; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+::selection { background: var(--accent); color: var(--on-accent); }

@@ -1,0 +1,917 @@
+{
+  "passed": 182,
+  "total": 182,
+  "results": [
+    {
+      "name": "Biblioteca vazia mostra tela inicial",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Varredura encontrou 3 itens (2 séries + 1 volume)",
+      "pass": true,
+      "extra": "[{\"t\":\"Estrela do Mar\",\"type\":\"series\",\"vols\":[\"Vol. 1:12\",\"Vol. 2:12\"],\"pages\":24},{\"t\":\"Kitsune Blade\",\"type\":\"series\",\"vols\":[\"Volume 1:16\",\"Volume 2:18\",\"Volume 3:20\"],\"pages\":54},{\"t\":\"Robo Samurai - Volume Unico\",\"type\":\"volume\",\"vols\":null,\"pages\":18}]"
+    },
+    {
+      "name": "Série aninhada Série/Volume com 3 volumes em ordem",
+      "pass": true,
+      "extra": "Volume 1:16,Volume 2:18,Volume 3:20"
+    },
+    {
+      "name": "Capas (miniaturas) carregadas",
+      "pass": true,
+      "extra": "[420,420,420]"
+    },
+    {
+      "name": "Miniaturas em cache no disco",
+      "pass": true,
+      "extra": "3 arquivos"
+    },
+    {
+      "name": "Busca filtra (procura também dentro das séries)",
+      "pass": true,
+      "extra": "[\"Volume 2\"]"
+    },
+    {
+      "name": "Busca pelo nome da série mostra a série e seus volumes",
+      "pass": true,
+      "extra": "[\"Estrela do Mar\",\"Vol. 1\",\"Vol. 2\"]"
+    },
+    {
+      "name": "Ordenação natural (pagina2 antes de pagina10)",
+      "pass": true,
+      "extra": "pagina1.jpg,pagina2.jpg,pagina3.jpg,pagina4.jpg,pagina5.jpg,pagina6.jpg,pagina7.jpg,pagina8.jpg,pagina9.jpg,pagina10.jpg,pagina11.jpg,pagina12.jpg"
+    },
+    {
+      "name": "Abre na capa sozinha (mangá: capa à esquerda da lombada, outra metade oculta)",
+      "pass": true,
+      "extra": "{\"k\":0,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 20\"}"
+    },
+    {
+      "name": "Seta ← avança no modo mangá (páginas 2–3)",
+      "pass": true,
+      "extra": "{\"k\":1,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"2\",\"right\":\"1\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"2–3 / 20\"}"
+    },
+    {
+      "name": "Seta → volta no modo mangá",
+      "pass": true,
+      "extra": "Capa / 20"
+    },
+    {
+      "name": "PageDown avança",
+      "pass": true,
+      "extra": "4–5 / 20"
+    },
+    {
+      "name": "End vai à última página",
+      "pass": true,
+      "extra": "20 / 20"
+    },
+    {
+      "name": "Home volta à capa",
+      "pass": true,
+      "extra": "Capa / 20"
+    },
+    {
+      "name": "Clique na página esquerda avança (mangá)",
+      "pass": true,
+      "extra": "2–3 / 20"
+    },
+    {
+      "name": "Clique na página direita volta (mangá)",
+      "pass": true,
+      "extra": "Capa / 20"
+    },
+    {
+      "name": "Arrastar o canto vira a página (com a folha seguindo o mouse)",
+      "pass": true,
+      "extra": "t durante arrasto=0.65, 2–3 / 20"
+    },
+    {
+      "name": "Arrasto curto e lento é cancelado (página volta)",
+      "pass": true,
+      "extra": "2–3 / 20"
+    },
+    {
+      "name": "Roda do mouse avança",
+      "pass": true,
+      "extra": "4–5 / 20"
+    },
+    {
+      "name": "Roda do mouse volta",
+      "pass": true,
+      "extra": "2–3 / 20"
+    },
+    {
+      "name": "Física: folha curva (borda atrasada), chega ao destino e balança antes de assentar",
+      "pass": true,
+      "extra": "58 quadros, máx=0.997, curvatura=true, balanço após tocar a página=6.7°"
+    },
+    {
+      "name": "Capturas da física (curvatura em voo e onda ao assentar)",
+      "pass": true,
+      "extra": "ângulos: [98,96,92,87,81,75,70,65,61,55,49,43,37,33] | [160,158,154,148,141,132,123,113,104,97,91,86,81,78] | [176,177,176,178,177,173,167,161,155,150,145,142,140,140]"
+    },
+    {
+      "name": "Após as capturas a leitura continua normal",
+      "pass": true,
+      "extra": "12–13 / 20"
+    },
+    {
+      "name": "Arrastar no meio da página não move a janela e vira a folha",
+      "pass": true,
+      "extra": "janela 233,50 → 233,50; vista 4 → 5"
+    },
+    {
+      "name": "A alça ⠿ move a janela (sem mudar o tamanho)",
+      "pass": true,
+      "extra": "233,50 → 293,90"
+    },
+    {
+      "name": "Nenhum elemento usa a região de arrasto nativa (-webkit-app-region: drag)",
+      "pass": true,
+      "extra": "0 elementos"
+    },
+    {
+      "name": "Tecla D alterna para ocidental (esq.→dir.) mantendo a página",
+      "pass": true,
+      "extra": "8|7 → 7|8"
+    },
+    {
+      "name": "No modo ocidental, seta → avança",
+      "pass": true,
+      "extra": "10–11 / 20"
+    },
+    {
+      "name": "Direção salva nas configurações",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Botão de direção volta ao modo mangá",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Tecla M alterna para página única",
+      "pass": true,
+      "extra": "10 / 20"
+    },
+    {
+      "name": "Virar no modo página única",
+      "pass": true,
+      "extra": "10 / 20 → 11 / 20"
+    },
+    {
+      "name": "Volta para página dupla",
+      "pass": true,
+      "extra": "10–11 / 20"
+    },
+    {
+      "name": "Zoom com Ctrl+roda e reset com 0",
+      "pass": true,
+      "extra": "zoom=1.93"
+    },
+    {
+      "name": "F11 entra em tela cheia e o livro ocupa a tela",
+      "pass": true,
+      "extra": "janela 1600x1000, livro 1286x947"
+    },
+    {
+      "name": "Esc sai da tela cheia",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Botão de tela cheia funciona",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Duplo clique alterna tela cheia",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Atalho ? abre a ajuda",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Abrir volume pela biblioteca e ler",
+      "pass": true,
+      "extra": "Kitsune Blade/Volume 2 6–7 / 18"
+    },
+    {
+      "name": "Progresso salvo em config.json (userData)",
+      "pass": true,
+      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1792110777653}, vol2={\"page\":6,\"total\":18,\"updated\":1792110782094}"
+    },
+    {
+      "name": "Após reiniciar: seção \"Continuar lendo\" lista os volumes lidos",
+      "pass": true,
+      "extra": "[\"Volume 2\",\"Capitulo 01 - O Comeco\"]"
+    },
+    {
+      "name": "Após reiniciar: raiz da biblioteca lembrada",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Após reiniciar: volume reabre na página onde parou",
+      "pass": true,
+      "extra": "10–11 / 20"
+    },
+    {
+      "name": "Após reiniciar: tamanho/posição da janela lembrados",
+      "pass": true,
+      "extra": "1135x900@234,50 → 1135x900@234,50"
+    },
+    {
+      "name": "Protocolo manga:// só serve imagens das pastas escolhidas",
+      "pass": true,
+      "extra": "fora: bloqueado, dentro: carregou"
+    },
+    {
+      "name": "Renderer isolado (sem Node: contextIsolation/sandbox)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Duplas: paginação refeita (capa, pares, dupla, branco antes da 2ª dupla)",
+      "pass": true,
+      "extra": "-|0 1|2 S3 4|5 6|B S7 8|9 10|11"
+    },
+    {
+      "name": "Duplas: a folha vira para a dupla com física (verso = metade da dupla)",
+      "pass": true,
+      "extra": "{\"frames\":60,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
+    },
+    {
+      "name": "Duplas: a imagem ocupa as duas páginas (metade esquerda + direita)",
+      "pass": true,
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 0.657895px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-536px 0.657895px\"}] pw=536"
+    },
+    {
+      "name": "Duplas: contador mostra a página dupla",
+      "pass": true,
+      "extra": "4 / 12"
+    },
+    {
+      "name": "Duplas: ao sair, a frente da folha é a outra metade da dupla",
+      "pass": true,
+      "extra": "{\"p\":3,\"half\":\"left\"}"
+    },
+    {
+      "name": "Duplas: depois da dupla os pares continuam certos (5–6)",
+      "pass": true,
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"5\",\"right\":\"4\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+    },
+    {
+      "name": "Duplas: página sozinha antes de dupla ganha página em branco (não some)",
+      "pass": true,
+      "extra": "7 / 12 [{\"page\":\"\",\"half\":\"\",\"blank\":true,\"hidden\":false,\"pos\":\"\"},{\"page\":\"6\",\"half\":\"\",\"blank\":false,\"hidden\":false,\"pos\":\"\"}]"
+    },
+    {
+      "name": "Duplas: barra de páginas pula direto para a dupla",
+      "pass": true,
+      "extra": "8 / 12"
+    },
+    {
+      "name": "Duplas: barra de páginas pula para um par depois das duplas",
+      "pass": true,
+      "extra": "9–10 / 12"
+    },
+    {
+      "name": "Duplas: no modo ocidental a dupla continua inteira e na mesma posição",
+      "pass": true,
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 0.657895px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-536px 0.657895px\"}]"
+    },
+    {
+      "name": "Duplas: ocidental, seta → sai da dupla para 5–6",
+      "pass": true,
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"ltr\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"4\",\"right\":\"5\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+    },
+    {
+      "name": "Duplas: em página única cada imagem é uma vista e a dupla aparece inteira",
+      "pass": true,
+      "extra": "12 vistas, 4 / 12"
+    },
+    {
+      "name": "Duplas: opção desligada volta à paginação comum",
+      "pass": true,
+      "extra": "-|0 1|2 3|4 5|6 7|8 9|10 11|-"
+    },
+    {
+      "name": "Duplas: opção religada recalcula as vistas",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Duplas: chave \"Detectar páginas duplas\" nas configurações (ligada por padrão)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Duplas: em tela cheia a dupla ocupa o livro inteiro",
+      "pass": true,
+      "extra": "livro 1354x947"
+    },
+    {
+      "name": "Duplas: arrastar o canto vira a página saindo da dupla",
+      "pass": true,
+      "extra": "5–6 / 12"
+    },
+    {
+      "name": "Link (núcleo): só páginas do grupo de resolução dominante e a dupla são mantidas, na ordem",
+      "pass": true,
+      "extra": "a,b,c,sp,d,e"
+    },
+    {
+      "name": "Link (núcleo): isca pequena, logo, banner, avatar, miniatura, quadrada, larga, GIF e arquivo minúsculo caem",
+      "pass": true,
+      "extra": "[\"logo:pequena\",\"btn:pequena\",\"avatar:pequena\",\"banner:pequena\",\"thumb:pequena\",\"a:duplicada\",\"tiny:arquivo-pequeno\",\"gif:formato\",\"related:resolução-diferente\",\"wide:proporção\",\"sq:proporção\",\"huge:resolução-diferente\",\"banner2:dupla-fora-do-padrão\"]"
+    },
+    {
+      "name": "Link (núcleo): sem nenhuma página em pé, nada é mantido",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link (núcleo): limites ajustáveis no topo do arquivo (perfil e limites exportados)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link (núcleo): extrai data-src, data-original, srcset (maior), noscript, picture, URLs relativas; ignora comentários, scripts, data:, javascript:, file:, ftp:, repetidas",
+      "pass": true,
+      "extra": "http://h.test/a.jpg http://h.test/cap/b.jpg http://cdn.test/c.jpg http://h.test/cap/s2.jpg http://h.test/cap/d.png http://h.test/cap/p.jpg"
+    },
+    {
+      "name": "Link (segurança): só http/https; file:, ftp:, javascript:, data: e lixo são recusados",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link (segurança): nomes de arquivo/pasta saneados (sem / \\ : * ? \" < > |, sem nomes reservados, tamanho limitado)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: botão \"Abrir link\" abre o diálogo com campo focado e aviso de direito de leitura",
+      "pass": true,
+      "extra": "{\"vis\":true,\"title\":\"Abrir link\",\"legal\":\"Use apenas com conteúdo que você tem o direito de ler. O Yomuchu não contorna login, paywall, captcha nem proteção (DRM).\",\"ph\":\"https://…\",\"go\":\"Baixar e abrir\",\"focus\":\"linkUrl\"}"
+    },
+    {
+      "name": "Link (segurança): file:// é recusado na interface sem tentar baixar",
+      "pass": true,
+      "extra": "{\"t\":\"Endereço inválido. Use um link http:// ou https://.\",\"vis\":true,\"prog\":false}"
+    },
+    {
+      "name": "Link (segurança): o processo principal também recusa file:// (não confia na interface)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: pasta \"Baixados de links\" criada com o título da página (saneado)",
+      "pass": true,
+      "extra": "Capítulo 12 & teste – Site"
+    },
+    {
+      "name": "Link: só as 11 páginas reais ficam, nomeadas 001, 002… com a extensão pelo conteúdo (jpg/png/webp)",
+      "pass": true,
+      "extra": "001.jpg,002.jpg,003.jpg,004.jpg,005.jpg,006.jpg,007.jpg,008.jpg,009.jpg,010.png,011.webp"
+    },
+    {
+      "name": "Link: conteúdo e ordem do documento preservados (lazy data-src/data-original, srcset maior, noscript, picture, relativa, dupla no meio)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: duplicadas (mesma URL e mesmo conteúdo) e iscas (logo, botões, avatar, banner, miniaturas, capa relacionada, quadrada, larga, minúscula, GIF, SVG) não entram",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: Referer da página enviado em todas as imagens e User-Agent educado identificado",
+      "pass": true,
+      "extra": "37 pedidos"
+    },
+    {
+      "name": "Link: primeiro lê só o cabeçalho (Range) de cada candidata e baixa inteiro apenas as escolhidas (+ a cópia idêntica que o hash descarta)",
+      "pass": true,
+      "extra": "25 com Range, 12 completos (11 páginas + 1 cópia idêntica descartada pelo hash)"
+    },
+    {
+      "name": "Link: o resultado abre no leitor como uma pasta local (11 páginas, dupla detectada, título e série)",
+      "pass": true,
+      "extra": "{\"n\":11,\"w\":1600,\"h\":1200,\"title\":\"Capítulo 12 & teste – Site\",\"series\":\"Baixados de links\"}"
+    },
+    {
+      "name": "Link: metadados guardam o endereço de origem (para reabrir/rebaixar)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: biblioteca ganha a série \"Baixados de links\" com o capítulo (para reabrir)",
+      "pass": true,
+      "extra": "{\"title\":\"Baixados de links\",\"vols\":[\"Capítulo 12 & teste – Site|11|true\"]}"
+    },
+    {
+      "name": "Link: dentro da série aparece o botão \"Apagar baixados\" e o volume reabre pelo cartão",
+      "pass": true,
+      "extra": "{\"crumb\":\"Baixados de links\",\"cards\":1,\"clearBtn\":true}"
+    },
+    {
+      "name": "Link: capítulo baixado reabre sem a internet (arquivos locais)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: página que monta as imagens por JavaScript usa a janela oculta e acha as 7 páginas, em ordem",
+      "pass": true,
+      "extra": "{\"ok\":true,\"title\":\"Capítulo JS\",\"pages\":7,\"failed\":0,\"truncated\":false,\"usedRender\":true,\"stats\":{\"candidates\":15,\"kept\":7,\"dropped\":8,\"dupHash\":0}}"
+    },
+    {
+      "name": "Link: capítulo de só 2 páginas é aceito (tenta a janela oculta, mantém as 2)",
+      "pass": true,
+      "extra": "{\"ok\":true,\"folder\":\"/tmp/yomuchu-e2e/baixados/Capítulo Curto\",\"title\":\"Capítulo Curto\",\"pages\":2,\"failed\":0,\"truncated\":false,\"usedRender\":false,\"stats\":{\"candidates\":10,\"kept\":2,\"dropped\":8,\"dupHash\":0}}"
+    },
+    {
+      "name": "Link: página sem nenhuma imagem de capítulo devolve o código noPages",
+      "pass": true,
+      "extra": "{\"ok\":false,\"code\":\"noPages\",\"detail\":\"\"}"
+    },
+    {
+      "name": "Link: site que responde 403 devolve \"blocked\" (não tenta burlar)",
+      "pass": true,
+      "extra": "{\"ok\":false,\"code\":\"blocked\",\"detail\":\"HTTP 403\"}"
+    },
+    {
+      "name": "Link: 404 devolve erro http claro",
+      "pass": true,
+      "extra": "{\"ok\":false,\"code\":\"http\",\"detail\":\"HTTP 404\"}"
+    },
+    {
+      "name": "Link (segurança): redirecionamento para file:// é recusado",
+      "pass": true,
+      "extra": "{\"ok\":false,\"code\":\"badUrl\",\"detail\":\"redirecionamento para esquema não permitido\"}"
+    },
+    {
+      "name": "Link: nada de pasta temporária (.tmp-) sobra depois de erros",
+      "pass": true,
+      "extra": "Capítulo 12 & teste – Site|Capítulo Curto|Capítulo JS"
+    },
+    {
+      "name": "Link: mensagem clara na interface quando nenhuma página é encontrada",
+      "pass": true,
+      "extra": "Nenhuma página de capítulo foi encontrada neste link. Confira se é a página do capítulo (com as imagens) e não a lista da obra."
+    },
+    {
+      "name": "Link: mensagem clara quando o site bloqueia, avisando que o app não contorna login/captcha",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: Esc fecha o diálogo quando não há download",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: barra de progresso sobe de forma contínua (fases leitura → análise → download) e o diálogo fecha ao terminar",
+      "pass": true,
+      "extra": "17 amostras, valores 16,27,30,57,84, fases probe,download"
+    },
+    {
+      "name": "Link: texto de status mostra \"Baixando páginas (n/10)\" em português",
+      "pass": true,
+      "extra": "Baixando páginas (0/10)…"
+    },
+    {
+      "name": "Abrir pasta: ao terminar o download o diálogo mostra \"Abrir pasta\" no estado concluído (e some o \"Baixar e abrir\")",
+      "pass": true,
+      "extra": "{\"vis\":true,\"open\":true,\"openTxt\":\"Abrir pasta\",\"go\":false,\"msg\":\"✔ 10 páginas baixadas\",\"close\":\"Fechar\"}"
+    },
+    {
+      "name": "Abrir pasta (diálogo): abre a pasta do capítulo que acabou de ser baixado, dentro de \"baixados\"",
+      "pass": true,
+      "extra": "{\"path\":\"/tmp/yomuchu-e2e/baixados/Capítulo Lento\",\"mode\":\"chapter\"}"
+    },
+    {
+      "name": "Abrir pasta: Esc fecha o diálogo concluído e, ao reabrir, ele volta ao estado normal",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Abrir pasta (configurações): botão ao lado de \"Apagar baixados\" abre a pasta \"baixados\"",
+      "pass": true,
+      "extra": "{\"adj\":{\"same\":true,\"vis\":true,\"txt\":\"Abrir pasta\"},\"l2\":{\"path\":\"/tmp/yomuchu-e2e/baixados\",\"mode\":\"dir\"}}"
+    },
+    {
+      "name": "Abrir pasta (série \"Baixados de links\"): botão ao lado de \"Apagar baixados\" abre a pasta \"baixados\"",
+      "pass": true,
+      "extra": "{\"hdr\":{\"same\":true,\"vis\":true,\"txt\":\"Abrir pasta\"},\"l3\":{\"path\":\"/tmp/yomuchu-e2e/baixados\",\"mode\":\"dir\"}}"
+    },
+    {
+      "name": "Abrir pasta (segurança): fora de \"baixados\" (pasta avulsa, /etc, \"..\", atalho simbólico, inexistente) é recusado e nada abre",
+      "pass": true,
+      "extra": "{\"loose\":false,\"etc\":false,\"up\":false,\"trav\":false,\"self\":false,\"link\":false,\"missing\":false,\"file\":false}"
+    },
+    {
+      "name": "Link: um segundo download simultâneo é recusado (busy)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: Cancelar interrompe o download, mostra \"Download cancelado.\" e libera o diálogo",
+      "pass": true,
+      "extra": "Download cancelado."
+    },
+    {
+      "name": "Link: cancelar não baixa o capítulo todo e não deixa pasta temporária",
+      "pass": true,
+      "extra": "4 downloads completos iniciados de 10; Capítulo 12 & teste – Site|Capítulo Curto|Capítulo JS|Capítulo Lento"
+    },
+    {
+      "name": "Link: depois de cancelar um novo download funciona (sem travar em \"busy\")",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link (segurança): excluir só funciona dentro de \"baixados\" (pasta avulsa fica intacta)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: Configurações mostram quantos capítulos e quanto espaço os baixados ocupam",
+      "pass": true,
+      "extra": "4 capítulos · 1.5 MB"
+    },
+    {
+      "name": "Link: apagar um capítulo baixado remove só ele",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: \"Apagar baixados\" pede confirmação e cancelar não apaga",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: \"Apagar baixados\" remove tudo, tira a série da biblioteca e o progresso dos capítulos",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Abrir pasta: se \"baixados\" ainda não existe, a pasta é criada antes de abrir",
+      "pass": true,
+      "extra": "{\"gone0\":true,\"r0\":{\"ok\":true,\"mode\":\"dir\"}}"
+    },
+    {
+      "name": "Link: 34 textos novos traduzidos nos 18 idiomas (com os mesmos {marcadores})",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Abrir pasta: rótulo traduzido nos 18 idiomas e chaves iguais em todos os arquivos",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Link: aviso de direito de leitura no README",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Título da janela e do app é Yomuchu",
+      "pass": true,
+      "extra": "Yomuchu — Biblioteca"
+    },
+    {
+      "name": "Favicon (logo novo) carrega com 64 px",
+      "pass": true,
+      "extra": "64px"
+    },
+    {
+      "name": "Ícones: todos os PNG gerados existem, são RGBA e têm o tamanho esperado (16–512, icon-small 32, favicon 64, logo 192)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: icon.ico tem os 7 tamanhos (16, 24, 32, 48, 64, 128, 256), cada um com seu próprio quadro real (PNG ou BMP) do mesmo tamanho, 32 bits (não uma imagem só esticada)",
+      "pass": true,
+      "extra": "[\"16bmp\",\"24png\",\"32bmp\",\"48bmp\",\"64bmp\",\"128bmp\",\"256bmp\"]"
+    },
+    {
+      "name": "Ícones: o .ico do usuário (16, 32, 48, 64, 128, 256) é a fonte da verdade — seus 6 quadros estão em build/icon.ico sem nenhuma alteração (só o de 24 px foi acrescentado)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: os PNG de 16, 32, 48, 64, 128 e 256 são os quadros do .ico do usuário (mesmo conteúdo)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: icon.png = icons/512x512.png e icon-small.png = icons/32x32.png (um logo só em todos os usos)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: fontes guardadas em icones-fonte/ (favicon-yomuchu.ico do usuário, yomuchu-logo.png 512×512 RGBA) e os dois desenhos antigos em anteriores/; LEIA-ME em português descreve tudo",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: gerar_icones.py prefere o .ico do usuário (plano B: só o logo) e não usa mais os desenhos antigos",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Ícones: package.json (ícone do Windows, instalador, desinstalador, Linux, arquivos empacotados) aponta só para arquivos que existem",
+      "pass": true,
+      "extra": "build/icon.ico,build/icon.ico,build/icon.ico,build/icons,build/icon.png,build/icon.ico,build/icon-small.png"
+    },
+    {
+      "name": "Ícones: o ícone das janelas (build/icon.png) carrega no processo principal com 512 px",
+      "pass": true,
+      "extra": "{\"empty\":false,\"size\":{\"width\":512,\"height\":512}}"
+    },
+    {
+      "name": "Ícones: o cabeçalho da biblioteca mostra o logo novo (imagem 192 px, sem o SVG antigo), a tela Doar usa o mesmo logo e as duas janelas apontam o favicon novo",
+      "pass": true,
+      "extra": "[{\"w\":192,\"shown\":46,\"oldSvg\":false,\"donate\":\"../logo.png\",\"lk\":[\"../favicon.png\"]},[\"../favicon.png\"]]"
+    },
+    {
+      "name": "Ícones: README documenta o .ico do usuário, o logo e o script",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Idioma padrão segue o sistema (pt-BR)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Seletor de idioma lista os 18 idiomas + automático",
+      "pass": true,
+      "extra": ",ar,de,en,es,fr,hi,id,it,ja,ko,nl,pl,pt-BR,ru,th,tr,vi,zh-CN"
+    },
+    {
+      "name": "Todos os idiomas aplicam sem textos faltando",
+      "pass": true,
+      "extra": "{}"
+    },
+    {
+      "name": "Trocar para japonês traduz biblioteca e leitor na hora",
+      "pass": true,
+      "extra": "ライブラリ / ライブラリ"
+    },
+    {
+      "name": "Árabe: biblioteca em layout RTL",
+      "pass": true,
+      "extra": "{\"dir\":\"rtl\",\"cs\":\"rtl\",\"h\":\"المكتبة\"}"
+    },
+    {
+      "name": "Árabe: barras do leitor em RTL, livro intacto (direção de leitura não muda)",
+      "pass": true,
+      "extra": "{\"top\":\"rtl\",\"stage\":\"ltr\",\"k\":5,\"dir\":\"rtl\"}"
+    },
+    {
+      "name": "Idioma escolhido salvo na configuração",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Aba Doar visível e traduzida",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Botões de doação abrem os links certos (shell.openExternal)",
+      "pass": true,
+      "extra": "[\"https://www.bugzinho.com/donate\",\"https://github.com/cleitinhodev/\",\"https://www.bugzinho.com/\"]"
+    },
+    {
+      "name": "Links fora da lista são recusados",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Leitor: o título do livro continua na barra depois de trocar de idioma (não volta para \"Carregando…\")",
+      "pass": true,
+      "extra": "Capitulo 01 - O Comeco"
+    },
+    {
+      "name": "Paleta: as 3 cores da marca (#c210ef, #5623ab, #4ffff0) ficam no topo de theme.css, num lugar só",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Paleta: README explica \"onde mudar as cores\"",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Tema escuro é o padrão (configuração, biblioteca e leitor)",
+      "pass": true,
+      "extra": "[\"dark\",{\"t\":\"dark\",\"pref\":\"dark\",\"cs\":\"dark\"}]"
+    },
+    {
+      "name": "Paleta (escuro): variáveis --lilac/--purple/--aqua têm as cores da marca na biblioteca e no leitor",
+      "pass": true,
+      "extra": "[\"rgb(194, 16, 239)\",\"rgb(86, 35, 171)\",\"rgb(79, 255, 240)\"]"
+    },
+    {
+      "name": "Contraste WCAG AA (escuro): texto em botões lilás/roxo ≥ 4,5, texto/fundo/painéis ≥ 4,5, foco ≥ 3 (biblioteca e leitor)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Botão primário usa o degradê lilás → roxo com texto branco",
+      "pass": true,
+      "extra": "{\"color\":\"rgb(255, 255, 255)\",\"bgi\":\"linear-gradient(135deg, rgb(194, 16, 239) 0%, rgb(86, 35, 171) 100%)\"}"
+    },
+    {
+      "name": "Configurações: aba \"Aparência\" com seletor Escuro / Claro / Padrão do sistema (Escuro marcado)",
+      "pass": true,
+      "extra": "{\"tab\":\"Aparência\",\"pane\":true,\"seg\":[\"Escuro*\",\"Claro\",\"Padrão do sistema\"]}"
+    },
+    {
+      "name": "Tema claro: aplica ao vivo na biblioteca e no leitor, fundo claro e salvo na configuração",
+      "pass": true,
+      "extra": "luminância do fundo 0.89"
+    },
+    {
+      "name": "Paleta (claro): as mesmas 3 cores da marca nas duas janelas",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Contraste WCAG AA (claro): texto em botões ≥ 4,5, texto/fundo/painéis ≥ 4,5, foco ≥ 3 (biblioteca e leitor)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Tema \"Padrão do sistema\": segue o claro/escuro do sistema nas duas janelas, ao vivo",
+      "pass": true,
+      "extra": "[[{\"t\":\"light\",\"pref\":\"system\",\"cs\":\"light\"},{\"t\":\"light\",\"pref\":\"system\",\"cs\":\"light\"}],[{\"t\":\"dark\",\"pref\":\"system\",\"cs\":\"dark\"},{\"t\":\"dark\",\"pref\":\"system\",\"cs\":\"dark\"}]]"
+    },
+    {
+      "name": "Voltar para Escuro: ambas as janelas escuras de novo",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Fundo do leitor: paleta de amostras (padrão, transparente, 3 cores da marca, preto, cinza, roxo, azul e marrom escuros, claro) + seletor de cor livre",
+      "pass": true,
+      "extra": "default,transparent,#c210ef,#5623ab,#4ffff0,#000000,#2b2a30,#1a0f2e,#0e1a30,#2a1d14,#ece6f2"
+    },
+    {
+      "name": "Fundo do leitor: o padrão mantém o visual atual (janela transparente)",
+      "pass": true,
+      "extra": "{\"bg\":\"rgba(0, 0, 0, 0)\",\"img\":\"radial-gradient(at 50% 45%, rgb(42, 36, 51) 0%, rgb(21, 18, 27) 55%, rgb(11, 10, 15) 100%)\",\"op\":\"0\",\"custom\":false,\"trans\":false}"
+    },
+    {
+      "name": "Fundo do leitor: padrão em tela cheia continua escuro (comportamento original)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Fundo do leitor: escolher uma amostra muda o fundo do leitor ao vivo (sem recarregar) e fica opaco",
+      "pass": true,
+      "extra": "30 ms"
+    },
+    {
+      "name": "Fundo do leitor: escolha salva na configuração",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Fundo do leitor: seletor de cor livre (#336699) aplica ao vivo, aparece marcado como \"Personalizada\" e é salvo",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Fundo do leitor: opção \"Transparente\" preserva o comportamento transparente (inclusive em tela cheia)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Fundo do leitor: voltar para \"Padrão\" restaura o visual original",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Segurança: configurações de aparência inválidas são saneadas no processo principal",
+      "pass": true,
+      "extra": "[\"default\",\"dark\",100,false]"
+    },
+    {
+      "name": "Sépia: desligado por padrão (nenhum filtro nas páginas, na pilha de folhas e nas duas faces da folha)",
+      "pass": true,
+      "extra": "{\"slotL\":\"none\",\"slotR\":\"none\",\"stack\":\"none\",\"faceF\":\"none\",\"faceB\":\"none\",\"v\":\"none\"}"
+    },
+    {
+      "name": "Sépia: ligar ativa o controle de intensidade (padrão 50%) e aplica o filtro quente às páginas, à pilha e às duas faces da folha",
+      "pass": true,
+      "extra": "[{\"v\":\"50\",\"dis\":false,\"out\":\"50%\",\"prev\":\"sepia(0.425) saturate(1.1) contrast(0.95) brightness(0.98)\"},\"sepia(0.425) saturate(1.1) contrast(0.95) brightness(0.98)\"]"
+    },
+    {
+      "name": "Sépia: o controle de intensidade (0–100%) muda o filtro ao vivo (100% = sepia 0,85; 0% = sem filtro; 70% = sepia 0,595)",
+      "pass": true,
+      "extra": "[\"sepia(0.85) saturate(1.2) contrast(0.9) brightness(0.96)\",\"none\",\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\"]"
+    },
+    {
+      "name": "Sépia: ligado e intensidade salvos na configuração",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Sépia: a página fica visivelmente mais quente/amarelada que a normal (R−B sobe) — captura lado a lado salva",
+      "pass": true,
+      "extra": "{\"warmNormal\":12.718912139011252,\"warmSepia\":21.15373225648557}"
+    },
+    {
+      "name": "Sépia: folha que vira (frente e verso, 28 faces) mantém o filtro no meio do movimento",
+      "pass": true,
+      "extra": "{\"on\":true,\"f\":\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\",\"b\":\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\",\"n\":28}"
+    },
+    {
+      "name": "Sépia: vale também no modo de página simples e em tela cheia",
+      "pass": true,
+      "extra": "[\"single\",\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\",\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\"]"
+    },
+    {
+      "name": "Sépia: não pesa na virada de página (tempo médio por quadro com sépia vs. sem, página parada em estado de física normal)",
+      "pass": true,
+      "extra": "com sépia 19.2 ms/quadro, sem 21.8 ms/quadro"
+    },
+    {
+      "name": "Sépia: a física não depende do filtro (mesmo número de tiras e passos; PHYS intacto)",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Árabe: aba Aparência traduzida e espelhada (amostras da direita para a esquerda)",
+      "pass": true,
+      "extra": "{\"dir\":\"rtl\",\"tab\":\"المظهر\",\"sw\":\"rtl\",\"firstRight\":true,\"theme\":\"داكن|فاتح|افتراضي النظام\",\"vis\":true}"
+    },
+    {
+      "name": "Idiomas: 23 textos novos (tema, fundo, sépia) nos 18 idiomas, com as mesmas chaves em todos os arquivos",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Estado final salvo (claro, fundo roxo, sépia 70%) para a checagem após reiniciar",
+      "pass": true,
+      "extra": "[\"light\",\"#5623ab\",true,70]"
+    },
+    {
+      "name": "Limpar histórico pede confirmação",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Cancelar mantém o histórico",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Confirmar esvazia \"Continuar lendo\"",
+      "pass": true,
+      "extra": "progress=0, recentes=0"
+    },
+    {
+      "name": "Após reiniciar: idioma (árabe, RTL) lembrado",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Após reiniciar: tema claro lembrado e aplicado já na primeira pintura (via ?theme= da janela)",
+      "pass": true,
+      "extra": "{\"t\":\"light\",\"q\":\"?theme=light&sys=light\"}"
+    },
+    {
+      "name": "Após reiniciar: configurações de aparência (claro, fundo roxo, sépia 70%) lembradas e mostradas",
+      "pass": true,
+      "extra": "{\"th\":\"light\",\"bd\":\"#5623ab\",\"sep\":true,\"lv\":\"70\"}"
+    },
+    {
+      "name": "Após reiniciar: o leitor abre no tema claro, com o fundo roxo e o papel envelhecido",
+      "pass": true,
+      "extra": "{\"t\":\"light\",\"bd\":\"rgb(86, 35, 171)\",\"custom\":true,\"f\":\"sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)\"}"
+    },
+    {
+      "name": "\"Padrão do sistema\" volta ao idioma do sistema",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Nenhum erro no console",
+      "pass": true,
+      "extra": ""
+    }
+  ],
+  "errors": []
+}

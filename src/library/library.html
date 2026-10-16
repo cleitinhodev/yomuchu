@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' manga: data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Yomuchu</title>
+<link rel="icon" href="../favicon.png">
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="library.css">
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img class="logo" src="../logo.png" alt="" width="46" height="46" draggable="false">
+    <div>
+      <h1><span class="appname">Yomuchu</span> <span class="h1sub" data-i18n="lib.title">Library</span></h1>
+      <button id="rootChip" class="root-chip" data-i18n-title="lib.changeRoot"><span id="rootPath"></span></button>
+    </div>
+  </div>
+  <div class="tools">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="search" type="search" data-i18n-ph="lib.search" autocomplete="off" spellcheck="false">
+    </label>
+    <select id="sort" data-i18n-title="lib.sort">
+      <option value="name" data-i18n="sort.name"></option>
+      <option value="recent" data-i18n="sort.recent"></option>
+      <option value="progress" data-i18n="sort.progress"></option>
+      <option value="pages" data-i18n="sort.pages"></option>
+    </select>
+    <button id="btnRefresh" class="icon-btn" data-i18n-title="lib.refresh"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+    <button id="btnOpenFolder" class="btn ghost" data-i18n-title="lib.openLooseTip"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span data-i18n="lib.openLoose"></span></button>
+    <button id="btnOpenLink" class="btn ghost" data-i18n-title="lib.openLinkTip"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span data-i18n="lib.openLink"></span></button>
+    <button id="btnSettings" class="icon-btn" data-i18n-title="set.title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </div>
+</header>
+
+<main id="main">
+  <section id="empty" class="empty hidden">
+    <div class="empty-art">
+      <div class="eb b1"></div><div class="eb b2"></div><div class="eb b3"></div>
+    </div>
+    <h2 data-i18n="empty.title"></h2>
+    <p data-i18n-html="empty.text"></p>
+    <div class="empty-actions">
+      <button id="btnChooseRoot" class="btn primary"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6"/></svg><span data-i18n="empty.choose"></span></button>
+      <button id="btnOpenFolder2" class="btn ghost" data-i18n="lib.openLoose"></button>
+    </div>
+    <p class="hint" data-i18n-html="empty.hint"></p>
+  </section>
+
+  <section id="continueSec" class="hidden">
+    <div class="sec-head"><h3 class="sec-title" data-i18n="cont.title"></h3><button id="btnClearHistory" class="btn ghost small"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg><span data-i18n="hist.clear"></span></button></div>
+    <div id="continueRow" class="continue-row"></div>
+  </section>
+
+  <section id="gridSec" class="hidden">
+    <div class="sec-head">
+      <nav id="crumbs" class="crumbs"></nav>
+      <span id="count" class="count"></span>
+      <button id="btnOpenDl2" class="btn ghost small hidden"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span data-i18n="links.openDir"></span></button>
+      <button id="btnClearLinks2" class="btn ghost small hidden"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg><span data-i18n="links.clear"></span></button>
+    </div>
+    <div id="grid" class="grid"></div>
+    <p id="noResults" class="no-results hidden" data-i18n="grid.noResults"></p>
+  </section>
+</main>
+
+<div id="dropOverlay" class="drop-overlay"><div class="drop-box"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><b data-i18n="drop.title"></b><span data-i18n="drop.text"></span></div></div>
+
+<div id="menu" class="ctx hidden"></div>
+
+<div id="settings" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <header><h2 data-i18n="set.title"></h2><button class="icon-btn" data-close data-i18n-title="common.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <nav class="tabs" id="setTabs"><button data-tab="general" class="on" data-i18n="set.tabGeneral"></button><button data-tab="look" id="tabLook" data-i18n="set.tabLook"></button><button data-tab="donate" id="tabDonate" data-i18n="set.tabDonate"></button></nav>
+    <div class="modal-body" id="paneGeneral">
+      <div class="field">
+        <div><b data-i18n="set.lang"></b><small data-i18n="set.langHint"></small></div>
+        <select id="setLang"></select>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.root"></b><small id="setRoot">—</small></div>
+        <button id="setChangeRoot" class="btn ghost small" data-i18n="set.change"></button>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.dir"></b><small data-i18n="set.dirHint"></small></div>
+        <div class="seg" id="setDirection"><button data-v="rtl" data-i18n="set.manga"></button><button data-v="ltr" data-i18n="set.western"></button></div>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.pages"></b><small data-i18n="set.pagesHint"></small></div>
+        <div class="seg" id="setMode"><button data-v="double" data-i18n="set.double"></button><button data-v="single" data-i18n="set.single"></button></div>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.spreads"></b><small data-i18n="set.spreadsHint"></small></div>
+        <label class="switch"><input type="checkbox" id="setSpreads"><span></span></label>
+      </div>
+      <div class="field">
+        <div><b data-i18n="links.setTitle"></b><small id="linkCacheInfo">—</small></div>
+        <div class="field-btns"><button id="btnOpenDl" class="btn ghost small" data-i18n="links.openDir"></button>
+        <button id="btnClearLinks" class="btn ghost small" data-i18n="links.clear"></button></div>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.sound"></b><small data-i18n="set.soundHint"></small></div>
+        <label class="switch"><input type="checkbox" id="setSound"><span></span></label>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.transp"></b><small data-i18n="set.transpHint"></small></div>
+        <label class="switch"><input type="checkbox" id="setTransparent"><span></span></label>
+      </div>
+      <div class="field" id="gpuField">
+        <div><b data-i18n="set.gpu"></b><small data-i18n="set.gpuHint"></small></div>
+        <label class="switch"><input type="checkbox" id="setGpu"><span></span></label>
+      </div>
+      <div id="restartBar" class="restart hidden"><span data-i18n="set.restart"></span> <button id="btnRestart" class="btn primary small" data-i18n="set.restartNow"></button></div>
+      <h4 data-i18n="keys.title"></h4>
+      <div class="keys">
+        <span><kbd>←</kbd><kbd>→</kbd></span><span data-i18n="keys.turn"></span>
+        <span><kbd>PgUp</kbd><kbd>PgDn</kbd></span><span data-i18n="keys.turn"></span>
+        <span><kbd>Home</kbd><kbd>End</kbd></span><span data-i18n="keys.firstLast"></span>
+        <span><kbd>F11</kbd> · <span data-i18n="keys.dblclick"></span></span><span data-i18n-html="keys.fs"></span>
+        <span><kbd>Ctrl</kbd> + roda / <kbd>+</kbd><kbd>-</kbd></span><span data-i18n-html="keys.zoom"></span>
+        <span><kbd>D</kbd> · <kbd>M</kbd></span><span data-i18n="keys.dirMode"></span>
+        <span><kbd>?</kbd></span><span data-i18n="keys.help"></span>
+      </div>
+      <p class="about">Yomuchu <span id="appVersion"></span></p>
+    </div>
+    <div class="modal-body hidden" id="paneLook">
+      <div class="field">
+        <div><b data-i18n="set.theme"></b><small data-i18n="set.themeHint"></small></div>
+        <div class="seg" id="setTheme"><button data-v="dark" data-i18n="set.themeDark"></button><button data-v="light" data-i18n="set.themeLight"></button><button data-v="system" data-i18n="set.themeSystem"></button></div>
+      </div>
+      <div class="field col">
+        <div><b data-i18n="set.backdrop"></b><small data-i18n="set.backdropHint"></small></div>
+        <div class="swatches" id="bdSwatches" role="radiogroup"></div>
+        <label class="sw-custom"><input type="color" id="setBdColor" value="#1a0f2e" data-i18n-aria="set.bd.custom"><span data-i18n="set.bd.custom"></span></label>
+        <div class="sw-name" id="bdName"></div>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.paper"></b><small data-i18n="set.paperHint"></small></div>
+        <label class="switch"><input type="checkbox" id="setSepia"><span></span></label>
+      </div>
+      <div class="field">
+        <div><b data-i18n="set.paperLevel"></b></div>
+        <div class="sepia-prev">
+          <div class="pg-mock" id="pgMock"></div>
+          <div class="range-row"><input type="range" class="yrange" id="setSepiaLevel" min="0" max="100" step="1" data-i18n-aria="set.paperLevel"><output id="sepiaVal"></output></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body hidden" id="paneDonate">
+      <div class="donate">
+        <img src="../logo.png" alt="" class="donate-logo">
+        <h3 data-i18n="donate.title"></h3>
+        <p data-i18n="donate.text"></p>
+        <div class="donate-links">
+          <button class="btn primary" data-link="https://www.bugzinho.com/donate" id="lnkDonate"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span data-i18n="donate.donate"></span></button>
+          <button class="btn ghost" data-link="https://github.com/cleitinhodev/" id="lnkGithub"><svg viewBox="0 0 24 24"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg><span data-i18n="donate.github"></span></button>
+          <button class="btn ghost" data-link="https://www.bugzinho.com/" id="lnkSite"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span data-i18n="donate.site"></span></button>
+        </div>
+        <p class="donate-urls"><bdi>github.com/cleitinhodev</bdi> · <bdi>bugzinho.com</bdi></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="linkDlg" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+  <div class="modal-card link-card">
+    <header><h2 id="linkTitle" data-i18n="link.title"></h2><button class="icon-btn" id="linkX" data-i18n-title="common.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <div class="modal-body">
+      <p class="link-text" data-i18n="link.text"></p>
+      <input id="linkUrl" class="link-input" type="url" inputmode="url" autocomplete="off" spellcheck="false" data-i18n-ph="link.ph" dir="ltr">
+      <p class="link-legal" id="linkLegal" data-i18n="link.legal"></p>
+      <div id="linkProg" class="link-prog hidden">
+        <div id="linkBar" class="bar big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+        <div class="link-status"><span id="linkStatus"></span><b id="linkPct"></b></div>
+      </div>
+      <p id="linkMsg" class="link-msg hidden" role="alert"></p>
+      <div class="confirm-actions">
+        <button id="linkClose" class="btn ghost" data-i18n="common.cancel"></button>
+        <button id="linkAbort" class="btn ghost hidden" data-i18n="link.abort"></button>
+        <button id="linkOpenDir" class="btn primary hidden" data-i18n="links.openDir"></button>
+        <button id="linkGo" class="btn primary" data-i18n="link.start"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="confirm" class="modal hidden" role="alertdialog" aria-modal="true">
+  <div class="modal-card confirm-card">
+    <h2 id="confirmTitle" data-i18n="hist.confirmTitle"></h2>
+    <p id="confirmText" data-i18n="hist.confirmText"></p>
+    <div class="confirm-actions"><button id="confirmNo" class="btn ghost" data-i18n="common.cancel"></button><button id="confirmYes" class="btn primary danger" data-i18n="hist.clear"></button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="../i18n.js"></script>
+<script src="library.js"></script>
+</body>
+</html>

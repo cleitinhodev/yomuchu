@@ -1,0 +1,194 @@
+:root {
+  /* as cores da interface e os temas ficam em ../shared/theme.css */
+  --paper: #fbf8f1;
+  --board: #6b1f2e;
+  --bd-default: radial-gradient(ellipse at 50% 45%, #2a2433 0%, #15121b 55%, #0b0a0f 100%); /* fundo "padrão" (tema escuro) */
+  --bd-color: #1a0f2e;
+}
+:root[data-theme="light"] { --bd-default: radial-gradient(ellipse at 50% 45%, #ffffff 0%, #e8dcf9 58%, #d3c1ee 100%); }
+* { box-sizing: border-box; }
+/* Nada usa a região de arrasto nativa (no Windows ela "engole" o mouse e move a janela inteira).
+   A janela é movida manualmente pela alça ⠿, pelo título e pela borda da capa (ver reader.js). */
+html, body, body * { -webkit-app-region: no-drag !important; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+body {
+  font-family: "Segoe UI Variable", "Segoe UI", "Noto Sans", "DejaVu Sans", system-ui, sans-serif;
+  color: var(--text); user-select: none; -webkit-user-drag: none;
+}
+svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.hidden { display: none !important; }
+
+/* fundo: invisível no modo transparente; escuro na tela cheia ou no modo opaco */
+#backdrop {
+  position: fixed; inset: 0; opacity: 0; transition: opacity .45s ease; pointer-events: none;
+  background: var(--bd-default);
+}
+body.opaque #backdrop, body.fs #backdrop { opacity: 1; }
+/* cor escolhida nas configurações: sempre visível (janela e tela cheia); "transparente": nunca */
+body.bd-custom #backdrop { background: var(--bd-color); opacity: 1; }
+body.bd-transparent #backdrop, body.bd-transparent.fs #backdrop, body.bd-transparent.opaque #backdrop { opacity: 0; }
+
+/* ------------------------------------------------------------ palco e livro */
+#stage { position: fixed; inset: 0; overflow: hidden; }
+#zoomer { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+#zoomer.anim { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+#book { position: absolute; transition: opacity .5s ease, transform .6s cubic-bezier(.2,.9,.25,1); }
+#book.hidden-book { opacity: 0; transform: translateY(14px) scale(.96); }
+#book.jump .slot .img { animation: jumpFade .35s ease; }
+@keyframes jumpFade { from { opacity: .15; } }
+
+.board {
+  position: absolute; cursor: grab; transition: opacity .25s ease;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.10), transparent 60%),
+    linear-gradient(160deg, #7c2536, #4c1220);
+  box-shadow: 0 1px 0 rgba(255,255,255,.12) inset, 0 -2px 0 rgba(0,0,0,.25) inset, 0 18px 34px -8px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.3);
+}
+.board::after { /* textura de couro */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: .35; mix-blend-mode: overlay; background-image: var(--noise);
+}
+.board.left { border-radius: 7px 2px 2px 7px; }
+.board.right { border-radius: 2px 7px 7px 2px; }
+.half-hidden { opacity: 0; pointer-events: none; }
+
+.stack {
+  position: absolute; transition: width .35s ease, left .35s ease, opacity .25s;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.18), transparent 8%, transparent 92%, rgba(0,0,0,.2)),
+    repeating-linear-gradient(90deg, #f6f1e4 0 1px, #d9d0bc 1px 2px, #efe8d8 2px 3px);
+}
+.stack.left { clip-path: polygon(100% 0, 0 1.2%, 0 98.8%, 100% 100%); box-shadow: -1px 0 0 rgba(0,0,0,.25); }
+.stack.right { clip-path: polygon(0 0, 100% 1.2%, 100% 98.8%, 0 100%); box-shadow: 1px 0 0 rgba(0,0,0,.25); }
+
+.slot { position: absolute; overflow: hidden; background: var(--paper); transition: opacity .25s ease; }
+.slot .img, .slot .paper, .slot .cast, .slot .tap { position: absolute; inset: 0; }
+.slot .img { background-repeat: no-repeat; background-position: center; background-size: contain; }
+.slot .paper { pointer-events: none; background-image: var(--noise); opacity: .5; mix-blend-mode: multiply; }
+.slot.left .paper { box-shadow: inset -1px 0 0 rgba(0,0,0,.08); background-image: linear-gradient(to left, rgba(0,0,0,.30), rgba(0,0,0,.08) 2.2%, rgba(255,255,255,.06) 4%, transparent 9%), var(--noise); }
+.slot.right .paper { background-image: linear-gradient(to right, rgba(0,0,0,.30), rgba(0,0,0,.08) 2.2%, rgba(255,255,255,.06) 4%, transparent 9%), var(--noise); }
+#book.single .slot .paper { background-image: var(--noise); }
+#book.single.sp-left .slot .paper { background-image: linear-gradient(to right, rgba(0,0,0,.22), transparent 5%), var(--noise); }
+#book.single.sp-right .slot .paper { background-image: linear-gradient(to left, rgba(0,0,0,.22), transparent 5%), var(--noise); }
+.slot.empty { background: #efe6d4; }
+.slot.empty .img { background-image: repeating-linear-gradient(45deg, rgba(120,60,60,.05) 0 10px, transparent 10px 20px) !important; background-size: auto !important; }
+.slot .cast { pointer-events: none; opacity: 0; inset: 0 auto 0 auto; width: 0; }
+.slot .tap { cursor: pointer; }
+.zoomed .slot .tap { cursor: grab; }
+.zoomed.panning .slot .tap { cursor: grabbing; }
+
+.spine { position: absolute; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(0,0,0,.35) 45%, rgba(0,0,0,.35) 55%, transparent); }
+#book.single .spine { display: none; }
+
+/* folha que vira: tiras aninhadas formam a curvatura do papel */
+#leaf { position: absolute; transform-style: preserve-3d; display: none; pointer-events: none; z-index: 5; }
+#leaf.on { display: block; }
+.strip { position: absolute; top: 0; height: 100%; transform-style: preserve-3d; }
+.strip > .face { position: absolute; inset: 0; backface-visibility: hidden; background-color: var(--paper); background-repeat: no-repeat; }
+.strip > .face.b { transform: rotateY(180deg); }
+.strip > .face > i { position: absolute; inset: 0; display: block; }
+.strip > .face > i.gut { background-repeat: no-repeat; opacity: .9; }
+.strip > .face > i.sh { background: transparent; }
+.strip > .face.blank { background-image: none !important; }
+.strip > .face.blank > i.gut { background-image: var(--noise), linear-gradient(rgba(0,0,0,.04), rgba(0,0,0,.04)) !important; background-size: auto !important; }
+
+/* ------------------------------------------------------------ barras */
+.bar-top, .bar-bottom {
+  position: fixed; left: 50%; z-index: 20; display: flex; align-items: center; gap: 6px;
+  background: var(--glass); color: var(--text); backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid var(--line); box-shadow: 0 10px 30px var(--shadow-md);
+  transition: opacity .3s ease, transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.bar-top { top: 8px; transform: translateX(-50%); padding: 5px 6px; border-radius: 14px; max-width: calc(100% - 16px); }
+.bar-bottom { bottom: 8px; transform: translateX(-50%); padding: 5px 10px; border-radius: 14px; width: min(640px, calc(100% - 16px)); }
+body.ui-hidden .bar-top { opacity: 0; transform: translate(-50%, -16px); pointer-events: none; }
+body.ui-hidden .bar-bottom { opacity: 0; transform: translate(-50%, 16px); pointer-events: none; }
+body.ui-hidden #resizer { opacity: 0; }
+body.ui-hidden { cursor: none; }
+.grip { width: 26px; height: 34px; display: grid; place-items: center; color: var(--muted); cursor: move; }
+.grip svg { fill: currentColor; stroke: none; }
+.drag { cursor: grab; }
+body.moving, body.moving * { cursor: grabbing !important; }
+.title-wrap { min-width: 60px; max-width: 320px; padding: 0 10px; line-height: 1.2; overflow: hidden; flex: 1 1 auto; }
+.title-wrap .series { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--hl); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title-wrap .title { font-size: 13.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.group { display: flex; align-items: center; gap: 2px; }
+.sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
+.tb {
+  -webkit-app-region: no-drag; height: 34px; min-width: 34px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: 0; border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background .15s, transform .12s, color .15s;
+}
+.tb.icon { padding: 0; }
+.tb.small { height: 28px; min-width: 28px; }
+.tb:hover { background: var(--hover); }
+.tb:active { transform: scale(.93); }
+.tb.close:hover { background: var(--danger); color: #fff; }
+.tb.on { color: var(--hl); background: var(--accent-soft); }
+#btnDir.ltr svg { transform: scaleX(-1); }
+#btnSound .mute { display: none; }
+#btnSound.off .wave { display: none; }
+#btnSound.off .mute { display: inline; }
+#btnFull .exit { display: none; }
+body.fs #btnFull .exit { display: inline; }
+body.fs #btnFull .enter { display: none; }
+@media (max-width: 760px) { .tb span { display: none; } .tb { padding: 0 8px; } }
+@media (max-width: 560px) { .title-wrap { display: none; } }
+
+.counter { font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; min-width: 92px; padding-left: 4px; }
+.slider-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+#slider { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; background: transparent; cursor: pointer; margin: 0; }
+#slider::-webkit-slider-runnable-track { height: 5px; border-radius: 9px; background: var(--grad-progress) 0 / var(--fill, 0%) 100% no-repeat, var(--track); }
+#slider[dir="rtl"]::-webkit-slider-runnable-track { background: linear-gradient(270deg, var(--purple), var(--lilac) 62%, var(--aqua)) 100% 0 / var(--fill, 0%) 100% no-repeat, var(--track); }
+#slider::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5px; border-radius: 50%; background: #fff; border: 2px solid var(--purple); box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 6px var(--shadow-sm); transition: transform .15s; }
+#slider:focus-visible::-webkit-slider-thumb { box-shadow: var(--focus-ring); }
+#slider:hover::-webkit-slider-thumb { transform: scale(1.15); }
+.preview {
+  position: absolute; bottom: 34px; transform: translateX(-50%); padding: 5px; border-radius: 10px; background: var(--glass-solid); color: var(--text);
+  border: 1px solid var(--line); box-shadow: 0 12px 26px var(--shadow-md); opacity: 0; pointer-events: none; transition: opacity .15s; text-align: center;
+}
+.preview.on { opacity: 1; }
+.preview img { display: block; width: 84px; height: 124px; object-fit: cover; border-radius: 5px; background: var(--cover-bg); }
+.preview span { display: block; font-size: 12px; margin-top: 4px; font-weight: 700; }
+.zoom-val { -webkit-app-region: no-drag; background: none; border: 0; color: var(--muted); font: inherit; font-size: 12px; width: 46px; cursor: pointer; font-variant-numeric: tabular-nums; border-radius: 6px; height: 26px; }
+.zoom-val:hover { background: var(--hover); color: var(--text); }
+
+#resizer {
+  position: fixed; right: 2px; bottom: 2px; width: 22px; height: 22px; z-index: 30; cursor: nwse-resize; color: var(--text);
+  display: grid; place-items: center; border-radius: 6px; background: var(--glass); transition: opacity .3s;
+}
+body.fs #resizer { display: none; }
+
+/* ------------------------------------------------------------ sobreposições */
+.overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: var(--scrim); backdrop-filter: blur(4px); animation: fade .15s; }
+@keyframes fade { from { opacity: 0; } }
+.help-card { width: min(560px, 92vw); background: var(--bg2); color: var(--text); border: 1px solid var(--line); border-radius: 18px; padding: 22px 26px; box-shadow: 0 30px 70px var(--shadow-lg); animation: pop .18s ease-out; }
+@keyframes pop { from { opacity: 0; transform: scale(.96); } }
+.help-card h2 { margin: 0 0 16px; font-size: 19px; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 9px 18px; font-size: 13.5px; color: var(--muted); }
+.keys span:nth-child(odd) { color: var(--text); white-space: nowrap; }
+kbd { display: inline-block; min-width: 22px; padding: 2px 6px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line); border-bottom-width: 2px; font-family: inherit; font-size: 12px; text-align: center; color: var(--text); }
+.tip { font-size: 12.5px; color: var(--muted); margin: 16px 0 0; line-height: 1.5; }
+
+.toast {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.96); opacity: 0; z-index: 50; pointer-events: none;
+  background: var(--glass-solid); color: var(--text); backdrop-filter: blur(10px); border: 1px solid var(--line); padding: 12px 20px; border-radius: 14px;
+  font-size: 15px; font-weight: 600; box-shadow: 0 14px 34px var(--shadow-md); transition: .2s;
+}
+.toast.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+.loading { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; transition: opacity .3s; z-index: 15; }
+.loading.done { opacity: 0; }
+.spinner { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--track); border-top-color: var(--accent); animation: spin .8s linear infinite; background: var(--glass); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tb:focus-visible, .zoom-val:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; box-shadow: var(--focus-ring); } .tb:focus:not(:focus-visible) { outline: none; }
+
+/* página em branco inserida antes de uma página dupla (paridade) */
+.slot.blankpage { background: #f3ecdf; }
+.slot.blankpage .img { background-image: none !important; }
+/* metade de uma página dupla: a imagem preenche o livro aberto inteiro */
+.slot.spread-half .img { background-repeat: no-repeat; }
+
+/* ------------------------------------------------------------ papel envelhecido (sépia)
+   --page-filter só existe quando a opção está ligada (ver reader.js, applyLook). O filtro é uma matriz de cor
+   aplicada às páginas, à pilha de folhas e às duas faces da folha que vira; não toca no cálculo da física. */
+.slot, .stack, .strip > .face { filter: var(--page-filter, none); }
