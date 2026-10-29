@@ -148,7 +148,7 @@ Logo abaixo ficam os "papéis" de cada tema (`--bg`, `--panel`, `--text`, `--mut
   levando metade da dupla.
   Em "página única" a dupla aparece inteira, reduzida para caber. Dá para desligar em **Configurações →
   Detectar páginas duplas automaticamente**.
-- Amostra nova: `amostras/avulso/Capitulo 02 - Paginas Duplas` (gerada por `tools/gerar_amostras_duplas.py`).
+- Amostra nova: `amostras/avulso/Capitulo 02 - Paginas Duplas` (hoje montada com a arte real por `tools/montar_amostras.py`; `tools/gerar_amostras_duplas.py --forcar` recria a versão placeholder).
 
 ## Novidades da versão 0.2.0
 
@@ -178,7 +178,8 @@ Requisitos: Node.js 18+ (testado com Node 20) e Python 3 com Pillow (só para ge
 npm install
 npm start                       # roda em modo de desenvolvimento
 npm run start:opaco             # roda sem transparência
-python3 tools/gerar_amostras.py # recria as páginas de teste em amostras/
+python3 tools/montar_amostras.py "<pasta com capas/ e páginas/>"  # monta amostras/ com a arte real
+python3 tools/gerar_amostras.py --forcar  # volta às páginas de placeholder (sem --forcar não mexe na arte real)
 python3 tools/gerar_icones.py   # recria os ícones a partir de build/icones-fonte/
 
 npm run dist:linux              # AppImage (+ .deb) → dist/
@@ -208,7 +209,9 @@ build/                 ícones gerados (icon.ico, icon.png, icons/16x16…512x51
   icones-fonte/        favicon-yomuchu.ico = o ícone do usuário (fonte da verdade) e yomuchu-logo.png = o logo de 512 px (troque aqui e rode tools/gerar_icones.py); anteriores/ = os dois desenhos antigos (gato no livro e livro simples)
 tools/                 geradores de amostras e de ícones (Python/Pillow)
 tests/                 teste ponta a ponta (tests/e2e.js) e gerador de quadros da animação
-amostras/              mangás de teste (pasta avulsa com 20 páginas + biblioteca com 3 títulos)
+amostras/              mangás de teste com arte real: 6 capas + 12 páginas (a 11 é dupla), montados por tools/montar_amostras.py
+                       (2 pastas avulsas + biblioteca com 3 títulos). Os geradores de placeholder não sobrescrevem
+                       esta pasta enquanto existir amostras/.arte-real.
 ```
 
 **Segurança:** `contextIsolation` ligado, `nodeIntegration` desligado, `sandbox` ligado, Content-Security-Policy restrita.

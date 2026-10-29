@@ -7,6 +7,10 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = os.path.join(os.path.dirname(__file__), '..', 'amostras', 'avulso', 'Capitulo 02 - Paginas Duplas')
 W, H = 760, 1080
 SPREADS = {4, 8}
+import sys
+if os.path.exists(os.path.join(OUT, '..', '..', '.arte-real')) and '--forcar' not in sys.argv:
+    print('amostras/ tem arte real (amostras/.arte-real); nada foi alterado. Use --forcar para recriar.')
+    sys.exit(0)
 os.makedirs(OUT, exist_ok=True)
 for f in os.listdir(OUT): os.remove(os.path.join(OUT, f))
 def font(sz):

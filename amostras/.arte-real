@@ -1,0 +1,3 @@
+Amostras montadas com tools/montar_amostras.py a partir da arte real.
+tools/gerar_amostras.py e tools/gerar_amostras_duplas.py não sobrescrevem
+esta pasta (use --forcar para voltar às páginas de placeholder).

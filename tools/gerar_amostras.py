@@ -151,7 +151,18 @@ def volume(folder, title, vol, pages, accent, seed, names='num', ext='.jpg'):
         else:
             page(p, title, i, pages, accent, seed * 1000 + i)
 
+
+def _arte_real_protegida(base):
+    """Não sobrescreve as amostras com arte real (ver tools/montar_amostras.py)."""
+    import sys
+    if os.path.exists(os.path.join(base, '.arte-real')) and '--forcar' not in sys.argv:
+        print('amostras/ tem arte real (amostras/.arte-real); nada foi alterado. '
+              'Use --forcar para recriar as páginas de placeholder.')
+        sys.exit(0)
+
+
 if __name__ == '__main__':
+    _arte_real_protegida(BASE)
     if os.path.exists(BASE):
         shutil.rmtree(BASE)
     # 1) pasta avulsa com 20 páginas (nomes pagina1..pagina20 -> testa ordenação natural)

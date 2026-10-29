@@ -10,7 +10,7 @@
     {
       "name": "Varredura encontrou 3 itens (2 séries + 1 volume)",
       "pass": true,
-      "extra": "[{\"t\":\"Estrela do Mar\",\"type\":\"series\",\"vols\":[\"Vol. 1:12\",\"Vol. 2:12\"],\"pages\":24},{\"t\":\"Kitsune Blade\",\"type\":\"series\",\"vols\":[\"Volume 1:16\",\"Volume 2:18\",\"Volume 3:20\"],\"pages\":54},{\"t\":\"Robo Samurai - Volume Unico\",\"type\":\"volume\",\"vols\":null,\"pages\":18}]"
+      "extra": "[{\"t\":\"Estrela do Mar\",\"type\":\"series\",\"vols\":[\"Vol. 1:13\",\"Vol. 2:13\"],\"pages\":26},{\"t\":\"Kitsune Blade\",\"type\":\"series\",\"vols\":[\"Volume 1:16\",\"Volume 2:18\",\"Volume 3:20\"],\"pages\":54},{\"t\":\"Robo Samurai - Volume Unico\",\"type\":\"volume\",\"vols\":null,\"pages\":18}]"
     },
     {
       "name": "Série aninhada Série/Volume com 3 volumes em ordem",
@@ -45,12 +45,12 @@
     {
       "name": "Abre na capa sozinha (mangá: capa à esquerda da lombada, outra metade oculta)",
       "pass": true,
-      "extra": "{\"k\":0,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 20\"}"
+      "extra": "{\"k\":0,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 20\"}"
     },
     {
       "name": "Seta ← avança no modo mangá (páginas 2–3)",
       "pass": true,
-      "extra": "{\"k\":1,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"2\",\"right\":\"1\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"2–3 / 20\"}"
+      "extra": "{\"k\":1,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"2\",\"right\":\"1\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"2–3 / 20\"}"
     },
     {
       "name": "Seta → volta no modo mangá",
@@ -85,7 +85,7 @@
     {
       "name": "Arrastar o canto vira a página (com a folha seguindo o mouse)",
       "pass": true,
-      "extra": "t durante arrasto=0.65, 2–3 / 20"
+      "extra": "t durante arrasto=0.66, 2–3 / 20"
     },
     {
       "name": "Arrasto curto e lento é cancelado (página volta)",
@@ -105,12 +105,12 @@
     {
       "name": "Física: folha curva (borda atrasada), chega ao destino e balança antes de assentar",
       "pass": true,
-      "extra": "58 quadros, máx=0.997, curvatura=true, balanço após tocar a página=6.7°"
+      "extra": "56 quadros, máx=0.997, curvatura=true, balanço após tocar a página=6.9°"
     },
     {
       "name": "Capturas da física (curvatura em voo e onda ao assentar)",
       "pass": true,
-      "extra": "ângulos: [98,96,92,87,81,75,70,65,61,55,49,43,37,33] | [160,158,154,148,141,132,123,113,104,97,91,86,81,78] | [176,177,176,178,177,173,167,161,155,150,145,142,140,140]"
+      "extra": "ângulos: [77,76,72,68,63,59,55,52,48,43,37,32,29,28] | [166,163,159,154,147,138,129,119,110,102,96,92,88,86] | [177,177,177,179,176,171,165,159,152,146,142,139,137,137]"
     },
     {
       "name": "Após as capturas a leitura continua normal",
@@ -205,7 +205,7 @@
     {
       "name": "Progresso salvo em config.json (userData)",
       "pass": true,
-      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1792110777653}, vol2={\"page\":6,\"total\":18,\"updated\":1792110782094}"
+      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1793261788830}, vol2={\"page\":6,\"total\":18,\"updated\":1793261793247}"
     },
     {
       "name": "Após reiniciar: seção \"Continuar lendo\" lista os volumes lidos",
@@ -245,12 +245,12 @@
     {
       "name": "Duplas: a folha vira para a dupla com física (verso = metade da dupla)",
       "pass": true,
-      "extra": "{\"frames\":60,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
+      "extra": "{\"frames\":63,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
     },
     {
       "name": "Duplas: a imagem ocupa as duas páginas (metade esquerda + direita)",
       "pass": true,
-      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 0.657895px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-536px 0.657895px\"}] pw=536"
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 42.8333px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-508px 42.8333px\"}] pw=508"
     },
     {
       "name": "Duplas: contador mostra a página dupla",
@@ -265,7 +265,7 @@
     {
       "name": "Duplas: depois da dupla os pares continuam certos (5–6)",
       "pass": true,
-      "extra": "{\"k\":3,\"n\":12,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"5\",\"right\":\"4\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"5\",\"right\":\"4\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
     },
     {
       "name": "Duplas: página sozinha antes de dupla ganha página em branco (não some)",
@@ -285,12 +285,12 @@
     {
       "name": "Duplas: no modo ocidental a dupla continua inteira e na mesma posição",
       "pass": true,
-      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 0.657895px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-536px 0.657895px\"}]"
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 42.8333px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-508px 42.8333px\"}]"
     },
     {
       "name": "Duplas: ocidental, seta → sai da dupla para 5–6",
       "pass": true,
-      "extra": "{\"k\":3,\"n\":12,\"dir\":\"ltr\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/manga-reader/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"4\",\"right\":\"5\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"ltr\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"4\",\"right\":\"5\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
     },
     {
       "name": "Duplas: em página única cada imagem é uma vista e a dupla aparece inteira",
@@ -315,7 +315,7 @@
     {
       "name": "Duplas: em tela cheia a dupla ocupa o livro inteiro",
       "pass": true,
-      "extra": "livro 1354x947"
+      "extra": "livro 1286x947"
     },
     {
       "name": "Duplas: arrastar o canto vira a página saindo da dupla",
@@ -480,7 +480,7 @@
     {
       "name": "Link: barra de progresso sobe de forma contínua (fases leitura → análise → download) e o diálogo fecha ao terminar",
       "pass": true,
-      "extra": "17 amostras, valores 16,27,30,57,84, fases probe,download"
+      "extra": "17 amostras, valores 16,27,30,57,71,84, fases probe,download"
     },
     {
       "name": "Link: texto de status mostra \"Baixando páginas (n/10)\" em português",
@@ -780,7 +780,7 @@
     {
       "name": "Fundo do leitor: escolher uma amostra muda o fundo do leitor ao vivo (sem recarregar) e fica opaco",
       "pass": true,
-      "extra": "30 ms"
+      "extra": "38 ms"
     },
     {
       "name": "Fundo do leitor: escolha salva na configuração",
@@ -830,7 +830,7 @@
     {
       "name": "Sépia: a página fica visivelmente mais quente/amarelada que a normal (R−B sobe) — captura lado a lado salva",
       "pass": true,
-      "extra": "{\"warmNormal\":12.718912139011252,\"warmSepia\":21.15373225648557}"
+      "extra": "{\"warmNormal\":1.2275391581008392,\"warmSepia\":19.857874449339207}"
     },
     {
       "name": "Sépia: folha que vira (frente e verso, 28 faces) mantém o filtro no meio do movimento",
@@ -845,7 +845,7 @@
     {
       "name": "Sépia: não pesa na virada de página (tempo médio por quadro com sépia vs. sem, página parada em estado de física normal)",
       "pass": true,
-      "extra": "com sépia 19.2 ms/quadro, sem 21.8 ms/quadro"
+      "extra": "com sépia 17.9 ms/quadro, sem 21.8 ms/quadro"
     },
     {
       "name": "Sépia: a física não depende do filtro (mesmo número de tiras e passos; PHYS intacto)",
