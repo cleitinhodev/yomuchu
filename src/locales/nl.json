@@ -91,7 +91,7 @@
  "donate.donate": "Doneren",
  "donate.github": "GitHub",
  "donate.site": "Website",
- "err.noImages": "Geen JPEG/PNG/WebP-afbeeldingen gevonden in deze map.",
+ "err.noImages": "Geen JPEG/PNG/WebP/GIF-afbeeldingen gevonden in deze map.",
  "dlg.chooseRoot": "Kies de hoofdmap van de bibliotheek",
  "dlg.openFolder": "Map met pagina's openen",
  "rd.dragWin": "Sleep om het venster te verplaatsen",

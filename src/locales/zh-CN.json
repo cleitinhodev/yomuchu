@@ -91,7 +91,7 @@
  "donate.donate": "捐助",
  "donate.github": "GitHub",
  "donate.site": "网站",
- "err.noImages": "此文件夹中没有 JPEG/PNG/WebP 图片。",
+ "err.noImages": "此文件夹中没有 JPEG/PNG/WebP/GIF 图片。",
  "dlg.chooseRoot": "选择书库主文件夹",
  "dlg.openFolder": "打开包含页面的文件夹",
  "rd.dragWin": "拖动以移动窗口",

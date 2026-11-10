@@ -91,7 +91,7 @@
  "donate.donate": "Dona",
  "donate.github": "GitHub",
  "donate.site": "Sito web",
- "err.noImages": "Nessuna immagine JPEG/PNG/WebP trovata in questa cartella.",
+ "err.noImages": "Nessuna immagine JPEG/PNG/WebP/GIF trovata in questa cartella.",
  "dlg.chooseRoot": "Scegli la cartella principale della libreria",
  "dlg.openFolder": "Apri cartella con le pagine",
  "rd.dragWin": "Trascina per spostare la finestra",

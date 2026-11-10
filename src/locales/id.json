@@ -91,7 +91,7 @@
  "donate.donate": "Donasi",
  "donate.github": "GitHub",
  "donate.site": "Situs web",
- "err.noImages": "Tidak ada gambar JPEG/PNG/WebP di folder ini.",
+ "err.noImages": "Tidak ada gambar JPEG/PNG/WebP/GIF di folder ini.",
  "dlg.chooseRoot": "Pilih folder utama pustaka",
  "dlg.openFolder": "Buka folder berisi halaman",
  "rd.dragWin": "Seret untuk memindahkan jendela",

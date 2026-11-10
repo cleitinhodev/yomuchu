@@ -91,7 +91,7 @@
  "donate.donate": "寄付する",
  "donate.github": "GitHub",
  "donate.site": "ウェブサイト",
- "err.noImages": "このフォルダーに JPEG/PNG/WebP 画像が見つかりません。",
+ "err.noImages": "このフォルダーに JPEG/PNG/WebP/GIF 画像が見つかりません。",
  "dlg.chooseRoot": "ライブラリのメインフォルダーを選択",
  "dlg.openFolder": "ページのあるフォルダーを開く",
  "rd.dragWin": "ドラッグしてウィンドウを移動",

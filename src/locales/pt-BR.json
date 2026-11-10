@@ -91,7 +91,7 @@
  "donate.donate": "Doar",
  "donate.github": "GitHub",
  "donate.site": "Site",
- "err.noImages": "Nenhuma imagem JPEG/PNG/WebP encontrada nessa pasta.",
+ "err.noImages": "Nenhuma imagem JPEG/PNG/WebP/GIF encontrada nessa pasta.",
  "dlg.chooseRoot": "Escolha a pasta principal da biblioteca",
  "dlg.openFolder": "Abrir pasta com páginas",
  "rd.dragWin": "Arraste para mover a janela",

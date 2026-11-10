@@ -91,7 +91,7 @@
  "donate.donate": "Ủng hộ",
  "donate.github": "GitHub",
  "donate.site": "Trang web",
- "err.noImages": "Không có ảnh JPEG/PNG/WebP trong thư mục này.",
+ "err.noImages": "Không có ảnh JPEG/PNG/WebP/GIF trong thư mục này.",
  "dlg.chooseRoot": "Chọn thư mục chính của thư viện",
  "dlg.openFolder": "Mở thư mục chứa trang",
  "rd.dragWin": "Kéo để di chuyển cửa sổ",

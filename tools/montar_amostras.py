@@ -12,6 +12,7 @@ os testes (tests/e2e.js) esperam:
   biblioteca/Robo Samurai - Volume Unico 18 págs, 001.jpg (capa 06)
   avulso/Capitulo 01 - O Comeco          20 págs pagina1..20.jpg, só retrato
   avulso/Capitulo 02 - Paginas Duplas    12 págs, página deitada nas posições 4 e 8
+  avulso/Capitulo 03 - GIF Animado       6 págs, GIFs animados em 2, 4 (deitado = dupla) e 6 (tools/gerar_gif_amostra.py)
 Grava amostras/.arte-real para os geradores de placeholder não sobrescreverem.
 """
 import io, os, re, sys, shutil
@@ -84,6 +85,10 @@ def main(src):
         fh.write('Amostras montadas com tools/montar_amostras.py a partir da arte real.\n'
                  'tools/gerar_amostras.py e tools/gerar_amostras_duplas.py não sobrescrevem\n'
                  'esta pasta (use --forcar para voltar às páginas de placeholder).\n')
+    # capítulo de teste com GIF animado (usa as páginas do Capitulo 02)
+    import importlib.util as _u
+    _s = _u.spec_from_file_location('gerar_gif_amostra', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gerar_gif_amostra.py'))
+    _m = _u.module_from_spec(_s); _s.loader.exec_module(_m); _m.main()
     print('ok', BASE)
 
 

@@ -91,6 +91,8 @@ async function mapLimit(items, limit, fn, signal) {
 }
 
 // ============================================================== dimensões (só o cabeçalho)
+/** formatos aceitos como página (GIF animado também; as iscas GIF pequenas/fora do padrão caem pelo perfil) */
+const PAGE_TYPES = ['jpeg', 'png', 'webp', 'gif'];
 function sniffType(b) {
   if (b.length > 4 && b[0] === 0xff && b[1] === 0xd8) return 'jpeg';
   if (b.length > 8 && b.readUInt32BE(0) === 0x89504e47) return 'png';
@@ -101,8 +103,9 @@ function sniffType(b) {
   if (b.length > 12 && b.toString('ascii', 4, 8) === 'ftyp') return 'avif';
   return null;
 }
-/** lê largura/altura de JPEG, PNG ou WebP sem decodificar a imagem; null se não reconhecer */
+/** lê largura/altura de JPEG, PNG, WebP ou GIF sem decodificar a imagem; null se não reconhecer */
 function parseImageSize(b) {
+  if (b.length > 10 && b.toString('ascii', 0, 4) === 'GIF8') return { w: b.readUInt16LE(6), h: b.readUInt16LE(8) }; // tela lógica do GIF
   if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
   if (b.length > 30 && b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP') {
     const t = b.toString('ascii', 12, 16);
@@ -204,7 +207,7 @@ function filterByProfile(items, P = PROFILE) {
     const key = String(it.url).split('#')[0];
     if (seen.has(key)) { dropped.push({ url: it.url, reason: 'duplicada' }); continue; }
     seen.add(key);
-    if (it.type && !['jpeg', 'png', 'webp'].includes(it.type)) { dropped.push({ url: it.url, reason: 'formato' }); continue; }
+    if (it.type && !PAGE_TYPES.includes(it.type)) { dropped.push({ url: it.url, reason: 'formato' }); continue; }
     if (!it.w || !it.h) { dropped.push({ url: it.url, reason: 'sem-dimensões' }); continue; }
     if (it.bytes != null && it.bytes < P.minBytes) { dropped.push({ url: it.url, reason: 'arquivo-pequeno' }); continue; }
     if (Math.min(it.w, it.h) < P.minShort || Math.max(it.w, it.h) < P.minLong) { dropped.push({ url: it.url, reason: 'pequena' }); continue; }
@@ -295,7 +298,7 @@ async function fetchHtml(url, signal) {
 /** cabeçalho de uma imagem candidata: { type, w, h, bytes } (ou null) */
 async function probeImage(url, referer, signal, cookies) {
   try {
-    const { res } = await httpGet(url, { headers: { Referer: referer, Accept: 'image/avif,image/webp,image/png,image/jpeg,*/*;q=0.5', Range: `bytes=0-${LIMITS.probeBytes - 1}` }, signal, timeoutMs: LIMITS.probeTimeoutMs, cookies });
+    const { res } = await httpGet(url, { headers: { Referer: referer, Accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif,*/*;q=0.5', Range: `bytes=0-${LIMITS.probeBytes - 1}` }, signal, timeoutMs: LIMITS.probeTimeoutMs, cookies });
     if (!res.ok && res.status !== 206) { try { await res.body?.cancel(); } catch { /* */ } return { error: res.status }; }
     let bytes = null;
     const cr = /\/(\d+)\s*$/.exec(res.headers.get('content-range') || '');
@@ -375,7 +378,7 @@ async function renderPage(url, { signal, electron, onStatus }) {
 }
 
 // ============================================================== download do capítulo
-function extFor(type) { return type === 'png' ? '.png' : type === 'webp' ? '.webp' : '.jpg'; }
+function extFor(type) { return type === 'png' ? '.png' : type === 'webp' ? '.webp' : type === 'gif' ? '.gif' : '.jpg'; }
 async function rmrf(p) { try { await fsp.rm(p, { recursive: true, force: true }); } catch { /* */ } }
 
 async function downloadOne(it, referer, tmpFile, ctx) {
@@ -383,7 +386,7 @@ async function downloadOne(it, referer, tmpFile, ctx) {
   for (let attempt = 0; attempt <= LIMITS.retries; attempt++) {
     if (ctx.signal.aborted) throw new LinkError('cancelled');
     try {
-      const { res } = await httpGet(it.url, { headers: { Referer: referer, Accept: 'image/avif,image/webp,image/png,image/jpeg,*/*;q=0.5' }, signal: ctx.signal, timeoutMs: LIMITS.imageTimeoutMs, cookies: ctx.cookies });
+      const { res } = await httpGet(it.url, { headers: { Referer: referer, Accept: 'image/avif,image/webp,image/png,image/jpeg,image/gif,*/*;q=0.5' }, signal: ctx.signal, timeoutMs: LIMITS.imageTimeoutMs, cookies: ctx.cookies });
       if (!res.ok) { try { await res.body?.cancel(); } catch { /* */ } throw new LinkError(BLOCK_STATUS.has(res.status) ? 'blocked' : 'http', 'HTTP ' + res.status); }
       const hash = crypto.createHash('sha1');
       let size = 0, head = null;
@@ -402,7 +405,7 @@ async function downloadOne(it, referer, tmpFile, ctx) {
         }
       } finally { await fh.close().catch(() => {}); }
       const type = head ? sniffType(head) : null;
-      if (!['jpeg', 'png', 'webp'].includes(type)) throw new LinkError('http', 'não é uma imagem JPEG/PNG/WebP');
+      if (!PAGE_TYPES.includes(type)) throw new LinkError('http', 'não é uma imagem JPEG/PNG/WebP/GIF');
       return { type, sha: hash.digest('hex'), size };
     } catch (e) {
       lastErr = e;
@@ -517,4 +520,4 @@ async function downloadChapter(rawUrl, opts) {
   }
 }
 
-module.exports = { PROFILE, LIMITS, USER_AGENT, LinkError, downloadChapter, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };
+module.exports = { PROFILE, LIMITS, PAGE_TYPES, USER_AGENT, LinkError, downloadChapter, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };

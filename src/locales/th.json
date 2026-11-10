@@ -91,7 +91,7 @@
  "donate.donate": "บริจาค",
  "donate.github": "GitHub",
  "donate.site": "เว็บไซต์",
- "err.noImages": "ไม่พบรูป JPEG/PNG/WebP ในโฟลเดอร์นี้",
+ "err.noImages": "ไม่พบรูป JPEG/PNG/WebP/GIF ในโฟลเดอร์นี้",
  "dlg.chooseRoot": "เลือกโฟลเดอร์หลักของคลัง",
  "dlg.openFolder": "เปิดโฟลเดอร์ที่มีหน้า",
  "rd.dragWin": "ลากเพื่อย้ายหน้าต่าง",

@@ -91,7 +91,7 @@
  "donate.donate": "दान करें",
  "donate.github": "GitHub",
  "donate.site": "वेबसाइट",
- "err.noImages": "इस फ़ोल्डर में कोई JPEG/PNG/WebP चित्र नहीं मिला।",
+ "err.noImages": "इस फ़ोल्डर में कोई JPEG/PNG/WebP/GIF चित्र नहीं मिला।",
  "dlg.chooseRoot": "लाइब्रेरी का मुख्य फ़ोल्डर चुनें",
  "dlg.openFolder": "पृष्ठों वाला फ़ोल्डर खोलें",
  "rd.dragWin": "विंडो हिलाने के लिए खींचें",

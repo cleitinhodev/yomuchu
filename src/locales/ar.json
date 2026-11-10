@@ -91,7 +91,7 @@
  "donate.donate": "تبرّع",
  "donate.github": "GitHub",
  "donate.site": "الموقع",
- "err.noImages": "لا توجد صور JPEG/PNG/WebP في هذا المجلد.",
+ "err.noImages": "لا توجد صور JPEG/PNG/WebP/GIF في هذا المجلد.",
  "dlg.chooseRoot": "اختر المجلد الرئيسي للمكتبة",
  "dlg.openFolder": "فتح مجلد يحتوي صفحات",
  "rd.dragWin": "اسحب لتحريك النافذة",

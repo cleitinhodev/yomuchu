@@ -11,6 +11,7 @@ const SHOTS = path.join(ROOT, 'screenshots');
 const LIB = path.join(ROOT, 'amostras', 'biblioteca');
 const LOOSE = path.join(ROOT, 'amostras', 'avulso', 'Capitulo 01 - O Comeco');
 const SPREAD = path.join(ROOT, 'amostras', 'avulso', 'Capitulo 02 - Paginas Duplas');
+const GIFDIR = path.join(ROOT, 'amostras', 'avulso', 'Capitulo 03 - GIF Animado');
 const results = [];
 const errors = [];
 const ok = (name, cond, extra = '') => { results.push({ name, pass: !!cond, extra }); console.log(`${cond ? '✔' : '✘'} ${name}${extra ? ' — ' + extra : ''}`); };
@@ -429,6 +430,75 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     await lib.evaluate(() => load()); await sleep(1500);
   }
 
+  // ---- GIF animado: página normal (ordem, contagem, dupla, sépia) que anima no leitor
+  {
+    const LF = require(path.join(ROOT, 'src', 'linkfetch.js'));
+    await lib.evaluate((p) => window.mangaAPI.openReader(p), GIFDIR);
+    await rd.waitForFunction((p) => __reader.folder === p && document.querySelector('#loading').classList.contains('done'), GIFDIR);
+    await sleep(900);
+    const gp = await rd.evaluate(() => __reader.pages.map((p) => `${p.name}:${p.w}x${p.h}`));
+    ok('GIF: .gif/.GIF entram como páginas, na ordem natural, com tamanho lido do cabeçalho', gp.join() === '01.jpg:1024x1536,02.gif:400x600,03.jpg:1024x1536,04.gif:720x480,05.jpg:1024x1536,06.GIF:400x600', gp.join());
+    const gv = await rd.evaluate(() => __reader.views.map((v) => (v.s != null ? `S${v.s}` : `${v.a ?? '-'}|${v.b ?? (v.blank ? 'B' : '-')}`)).join(' '));
+    ok('GIF: GIF deitado vira página dupla, GIF em pé faz par como página comum', gv === '-|0 1|2 S3 4|5', gv);
+    await rd.keyboard.press('Home'); await waitIdle(rd);
+    await rd.keyboard.press('ArrowLeft'); await waitIdle(rd); await sleep(500);
+    let st = await rstate(rd);
+    ok('GIF: contador conta o GIF como página (2–3 / 6)', st.counter === '2–3 / 6', st.counter);
+    const info = await rd.evaluate(() => {
+      const el = [...document.querySelectorAll('.slot')].find((e) => e.dataset.page === '1');
+      const r = el.getBoundingClientRect();
+      const c = [...document.querySelectorAll('.slot')].find((e) => e.dataset.page === '2').getBoundingClientRect();
+      const im = new Image(); im.src = __reader.pages[1].url;
+      return { bg: el.firstElementChild.style.backgroundImage, tag: el.firstElementChild.tagName, canvas: el.querySelectorAll('canvas').length,
+        nw: im.naturalWidth, box: { x: Math.round(r.left), y: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) },
+        jbox: { x: Math.round(c.left), y: Math.round(c.top), width: Math.round(c.width), height: Math.round(c.height) } };
+    });
+    ok('GIF: a página GIF carrega e é mostrada como imagem (não canvas congelado)', /02\.gif/.test(info.bg) && info.canvas === 0 && info.nw === 400, JSON.stringify({ bg: info.bg.slice(-40), tag: info.tag, canvas: info.canvas, nw: info.nw }));
+    await rd.evaluate(() => document.body.classList.add('ui-hidden')); await sleep(400);
+    // 3 capturas espaçadas: a área do GIF muda, a da página JPG ao lado não
+    const shotsG = [], shotsJ = [];
+    for (let i = 0; i < 3; i++) {
+      shotsG.push(`/tmp/gif_${i}.png`); shotsJ.push(`/tmp/jpg_${i}.png`);
+      await rd.screenshot({ path: shotsG[i], clip: info.box }); await rd.screenshot({ path: shotsJ[i], clip: info.jbox });
+      await sleep(330);
+    }
+    const diff = (a, b) => parseFloat(execSync(`python3 -c "from PIL import Image, ImageChops; a=Image.open('${a}').convert('RGB'); b=Image.open('${b}').convert('RGB'); d=ImageChops.difference(a,b).convert('L').point(lambda v: 255 if v>24 else 0); print(sum(1 for v in d.getdata() if v)/(a.width*a.height))"`).toString());
+    const dg = Math.max(diff(shotsG[0], shotsG[1]), diff(shotsG[1], shotsG[2])), dj = Math.max(diff(shotsJ[0], shotsJ[1]), diff(shotsJ[1], shotsJ[2]));
+    ok('GIF: a página GIF está animada no leitor (quadros mudam), a página JPG ao lado fica parada', dg > 0.003 && dj < 0.001, `GIF ${(dg * 100).toFixed(2)}% dos pixels mudaram, JPG ${(dj * 100).toFixed(3)}%`);
+    wb = await winBounds(app, 'reader.html');
+    const wbox = { x: Math.max(0, wb.x), y: Math.max(0, wb.y), width: Math.min(1600 - Math.max(0, wb.x), wb.width), height: Math.min(1000 - Math.max(0, wb.y), wb.height) };
+    await rd.screenshot({ path: path.join(SHOTS, 'leitor-gif.png') });
+    // GIF deitado = dupla, animado nas duas metades
+    await rd.keyboard.press('ArrowLeft'); await waitIdle(rd); await sleep(500);
+    st = await rstate(rd);
+    const halves = await rd.evaluate(() => ['#slotL', '#slotR'].map((q) => { const e = document.querySelector(q); return `${e.dataset.page}:${e.dataset.half || ''}:${/04\.gif/.test(e.firstElementChild.style.backgroundImage)}`; }));
+    ok('GIF: GIF deitado ocupa o livro aberto inteiro (metade em cada lado)', st.counter === '4 / 6' && halves.join() === '3:left:true,3:right:true', `${st.counter} ${halves}`);
+    const sbox = await rd.evaluate(() => { const r = document.querySelector('#book').getBoundingClientRect(); return { x: Math.round(r.left), y: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) }; });
+    await rd.screenshot({ path: '/tmp/gifs_0.png', clip: sbox }); await sleep(330); await rd.screenshot({ path: '/tmp/gifs_1.png', clip: sbox });
+    const ds = diff('/tmp/gifs_0.png', '/tmp/gifs_1.png');
+    ok('GIF: a dupla em GIF também anima', ds > 0.002, `${(ds * 100).toFixed(2)}% dos pixels mudaram`);
+    await rd.screenshot({ path: path.join(SHOTS, 'leitor-gif-dupla.png') });
+    // sépia/papel vale para o GIF como para qualquer página
+    await lib.evaluate(() => window.mangaAPI.setSettings({ sepia: true, sepiaLevel: 70 })); await sleep(600);
+    const fl = await rd.evaluate(() => ['#slotL', '#slotR'].map((q) => getComputedStyle(document.querySelector(q)).filter));
+    ok('GIF: o filtro sépia/papel se aplica à página GIF', fl.every((f) => /sepia/.test(f)), fl.join(' | '));
+    await sleep(300); await rd.screenshot({ path: path.join(SHOTS, 'leitor-gif-sepia.png') });
+    await lib.evaluate(() => window.mangaAPI.setSettings({ sepia: false, sepiaLevel: 50 })); await sleep(400);
+    await rd.evaluate(() => document.body.classList.remove('ui-hidden'));
+    // miniatura (capa) de um GIF carrega; núcleo do "Abrir link" aceita GIF do tamanho das páginas
+    const tw = await rd.evaluate((p) => new Promise((res) => { const i = new Image(); i.onload = () => res(i.naturalWidth); i.onerror = () => res(-1); i.src = 'manga://thumb/?p=' + encodeURIComponent(p); }), path.join(GIFDIR, '02.gif'));
+    ok('GIF: miniatura de um GIF carrega (pode ser capa)', tw > 0, `largura ${tw}`);
+    const it = (url, w, h, extra) => ({ url, w, h, ...(extra || {}) });
+    const kg = LF.filterByProfile([it('a', 800, 1200), it('g', 800, 1200, { type: 'gif' }), it('b', 800, 1200), it('ad', 300, 250, { type: 'gif' })]);
+    const gsz = LF.parseImageSize(fs.readFileSync(path.join(GIFDIR, '04.gif')).subarray(0, 64));
+    ok('GIF (link): GIF do tamanho das páginas entra, GIF de anúncio cai; tamanho do GIF lido do cabeçalho', kg.kept.map((i) => i.url).join() === 'a,g,b' && kg.dropped.some((d) => d.url === 'ad') && gsz && gsz.w === 720 && gsz.h === 480 && LF.PAGE_TYPES.includes('gif'), `${kg.kept.map((i) => i.url)} ${JSON.stringify(gsz)}`);
+    // devolve o estado (a pasta do GIF não entra no "Continuar lendo")
+    await lib.evaluate((p) => window.mangaAPI.openReader(p), LOOSE);
+    await rd.waitForFunction((p) => __reader.folder === p, LOOSE); await sleep(800);
+    await lib.evaluate((p) => window.mangaAPI.clearProgress(p), GIFDIR);
+    await lib.evaluate(() => load()); await sleep(1500);
+  }
+
   // ---- 0.3.0: "Abrir link" (baixar capítulo de uma URL) com site falso local
   {
     const http = require('http'), crypto = require('crypto'), LF = require(path.join(ROOT, 'src', 'linkfetch.js'));
@@ -447,7 +517,7 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     ];
     const fr = LF.filterByProfile(sample);
     ok('Link (núcleo): só páginas do grupo de resolução dominante e a dupla são mantidas, na ordem', fr.kept.map((i) => i.url).join(',') === 'a,b,c,sp,d,e', fr.kept.map((i) => i.url).join(','));
-    ok('Link (núcleo): isca pequena, logo, banner, avatar, miniatura, quadrada, larga, GIF e arquivo minúsculo caem', ['logo', 'btn', 'avatar', 'banner', 'thumb', 'wide', 'sq', 'tiny', 'gif', 'related', 'huge', 'banner2'].every((u) => fr.dropped.some((d) => d.url === u)) && fr.dropped.some((d) => d.reason === 'duplicada'), JSON.stringify(fr.dropped.map((d) => d.url + ':' + d.reason)));
+    ok('Link (núcleo): isca pequena, logo, banner, avatar, miniatura, quadrada, larga, GIF fora do tamanho e arquivo minúsculo caem', ['logo', 'btn', 'avatar', 'banner', 'thumb', 'wide', 'sq', 'tiny', 'gif', 'related', 'huge', 'banner2'].every((u) => fr.dropped.some((d) => d.url === u)) && fr.dropped.some((d) => d.reason === 'duplicada'), JSON.stringify(fr.dropped.map((d) => d.url + ':' + d.reason)));
     ok('Link (núcleo): sem nenhuma página em pé, nada é mantido', LF.filterByProfile([it('x', 300, 100), it('y', 1600, 1200)]).kept.length === 0);
     ok('Link (núcleo): limites ajustáveis no topo do arquivo (perfil e limites exportados)', LF.PROFILE.minShort === 500 && LF.PROFILE.minLong === 700 && LF.PROFILE.portraitMin === 1.2 && LF.PROFILE.portraitMax === 2.2 && LF.PROFILE.spreadMax === 2.4 && LF.LIMITS.maxPages > 0 && LF.LIMITS.maxTotalBytes > 0);
     const cand = LF.extractCandidates('<title>x</title><img src="/a.jpg"><img src="data:image/gif;base64,AA" data-src="b.jpg"><img src="blank.gif" data-original="//cdn.test/c.jpg"><img srcset="s1.jpg 400w, s2.jpg 800w"><noscript><img src="b.jpg"><img src="d.png"></noscript><picture><source srcset="p.webp"><img src="p.jpg"></picture><!-- <img src="no.jpg"> --><script>var s="<img src=zz.jpg>"</script><img src="javascript:alert(1)"><img src="file:///etc/passwd"><img src="ftp://h/x.jpg"><img src="/a.jpg#t">', 'http://h.test/cap/1');
@@ -542,7 +612,7 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     ok('Link: só as 11 páginas reais ficam, nomeadas 001, 002… com a extensão pelo conteúdo (jpg/png/webp)', got.join(',') === '001.jpg,002.jpg,003.jpg,004.jpg,005.jpg,006.jpg,007.jpg,008.jpg,009.jpg,010.png,011.webp', got.join(','));
     const same = got.length === expectSrc.length && got.every((f, i) => sha(path.join(chap, f)) === sha(path.join(FAKE, expectSrc[i])));
     ok('Link: conteúdo e ordem do documento preservados (lazy data-src/data-original, srcset maior, noscript, picture, relativa, dupla no meio)', same);
-    ok('Link: duplicadas (mesma URL e mesmo conteúdo) e iscas (logo, botões, avatar, banner, miniaturas, capa relacionada, quadrada, larga, minúscula, GIF, SVG) não entram', !got.some((f) => ['logo.png', 'thumb1.jpg', 'related.jpg', 'anim.gif'].includes(f)) && got.length === 11);
+    ok('Link: duplicadas (mesma URL e mesmo conteúdo) e iscas (logo, botões, avatar, banner, miniaturas, capa relacionada, quadrada, larga, minúscula, GIF fora do tamanho, SVG) não entram', !got.some((f) => ['logo.png', 'thumb1.jpg', 'related.jpg', 'anim.gif'].includes(f)) && got.length === 11);
     const reqs = log.slice(nBefore).filter((e) => !e.page);
     ok('Link: Referer da página enviado em todas as imagens e User-Agent educado identificado', reqs.length > 20 && reqs.every((e) => e.referer === HOST + '/cap/ok') && reqs.every((e) => /Yomuchu/.test(e.ua)), `${reqs.length} pedidos`);
     ok('Link: primeiro lê só o cabeçalho (Range) de cada candidata e baixa inteiro apenas as escolhidas (+ a cópia idêntica que o hash descarta)', reqs.filter((e) => e.range).length >= 25 && reqs.filter((e) => !e.range).length === 12, `${reqs.filter((e) => e.range).length} com Range, ${reqs.filter((e) => !e.range).length} completos (11 páginas + 1 cópia idêntica descartada pelo hash)`);

@@ -91,7 +91,7 @@
  "donate.donate": "Spenden",
  "donate.github": "GitHub",
  "donate.site": "Website",
- "err.noImages": "In diesem Ordner wurden keine JPEG/PNG/WebP-Bilder gefunden.",
+ "err.noImages": "In diesem Ordner wurden keine JPEG/PNG/WebP/GIF-Bilder gefunden.",
  "dlg.chooseRoot": "Hauptordner der Bibliothek wählen",
  "dlg.openFolder": "Ordner mit Seiten öffnen",
  "rd.dragWin": "Ziehen, um das Fenster zu verschieben",

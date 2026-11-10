@@ -42,4 +42,8 @@ for n in range(1, 13):
         d.text((w // 2, H // 4), str(n), fill=(255, 255, 255), font=font(220), anchor='mm', stroke_width=6, stroke_fill=(30, 30, 30))
         d.text((w // 2, H * 3 // 4), f'pág. {n}', fill=(30, 30, 30), font=font(56), anchor='mm')
     im.save(os.path.join(OUT, f'{n:02d}.jpg'), quality=82)
+# capítulo de teste com GIF animado (usa as páginas do Capitulo 02)
+import importlib.util as _u
+_s = _u.spec_from_file_location('gerar_gif_amostra', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gerar_gif_amostra.py'))
+_m = _u.module_from_spec(_s); _s.loader.exec_module(_m); _m.main()
 print('ok', OUT)

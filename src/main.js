@@ -19,7 +19,7 @@ const CONFIG_FILE = path.join(USER_DATA, 'config.json');
 const THUMB_DIR = path.join(USER_DATA, 'miniaturas');
 const LOCALES_DIR = path.join(__dirname, 'locales');
 const DL_DIR = path.join(USER_DATA, 'baixados'); // capítulos baixados de links ("Abrir link")
-const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']); // GIF animado = página normal (anima no leitor)
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 const naturalCompare = (a, b) => collator.compare(a, b);
 
@@ -158,7 +158,7 @@ function registerProtocol() {
 }
 
 // ---------------------------------------------------------------- dimensões das imagens (só o cabeçalho)
-/** lê largura/altura de JPEG, PNG ou WebP sem decodificar a imagem; null se não reconhecer */
+/** lê largura/altura de JPEG, PNG, WebP ou GIF sem decodificar a imagem; null se não reconhecer */
 async function imageSize(file) {
   let fh;
   try {

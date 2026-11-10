@@ -91,7 +91,7 @@
  "donate.donate": "Bağış yap",
  "donate.github": "GitHub",
  "donate.site": "Web sitesi",
- "err.noImages": "Bu klasörde JPEG/PNG/WebP resmi bulunamadı.",
+ "err.noImages": "Bu klasörde JPEG/PNG/WebP/GIF resmi bulunamadı.",
  "dlg.chooseRoot": "Kitaplığın ana klasörünü seçin",
  "dlg.openFolder": "Sayfaların olduğu klasörü aç",
  "rd.dragWin": "Pencereyi taşımak için sürükleyin",

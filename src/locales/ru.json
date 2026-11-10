@@ -91,7 +91,7 @@
  "donate.donate": "Пожертвовать",
  "donate.github": "GitHub",
  "donate.site": "Сайт",
- "err.noImages": "В этой папке нет изображений JPEG/PNG/WebP.",
+ "err.noImages": "В этой папке нет изображений JPEG/PNG/WebP/GIF.",
  "dlg.chooseRoot": "Выберите главную папку библиотеки",
  "dlg.openFolder": "Открыть папку со страницами",
  "rd.dragWin": "Перетащите, чтобы переместить окно",

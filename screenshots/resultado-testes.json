@@ -1,6 +1,6 @@
 {
-  "passed": 182,
-  "total": 182,
+  "passed": 192,
+  "total": 192,
   "results": [
     {
       "name": "Biblioteca vazia mostra tela inicial",
@@ -45,12 +45,12 @@
     {
       "name": "Abre na capa sozinha (mangá: capa à esquerda da lombada, outra metade oculta)",
       "pass": true,
-      "extra": "{\"k\":0,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 20\"}"
+      "extra": "{\"k\":0,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 20\"}"
     },
     {
       "name": "Seta ← avança no modo mangá (páginas 2–3)",
       "pass": true,
-      "extra": "{\"k\":1,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"2\",\"right\":\"1\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"2–3 / 20\"}"
+      "extra": "{\"k\":1,\"n\":20,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/repo/amostras/avulso/Capitulo 01 - O Comeco\",\"left\":\"2\",\"right\":\"1\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"2–3 / 20\"}"
     },
     {
       "name": "Seta → volta no modo mangá",
@@ -85,7 +85,7 @@
     {
       "name": "Arrastar o canto vira a página (com a folha seguindo o mouse)",
       "pass": true,
-      "extra": "t durante arrasto=0.66, 2–3 / 20"
+      "extra": "t durante arrasto=0.65, 2–3 / 20"
     },
     {
       "name": "Arrasto curto e lento é cancelado (página volta)",
@@ -105,12 +105,12 @@
     {
       "name": "Física: folha curva (borda atrasada), chega ao destino e balança antes de assentar",
       "pass": true,
-      "extra": "56 quadros, máx=0.997, curvatura=true, balanço após tocar a página=6.9°"
+      "extra": "48 quadros, máx=0.996, curvatura=true, balanço após tocar a página=6.5°"
     },
     {
       "name": "Capturas da física (curvatura em voo e onda ao assentar)",
       "pass": true,
-      "extra": "ângulos: [77,76,72,68,63,59,55,52,48,43,37,32,29,28] | [166,163,159,154,147,138,129,119,110,102,96,92,88,86] | [177,177,177,179,176,171,165,159,152,146,142,139,137,137]"
+      "extra": "ângulos: [87,85,82,77,72,67,62,58,54,49,43,37,33,30] | [160,158,154,148,141,132,123,113,105,97,91,86,81,78] | [176,176,176,177,177,174,169,164,158,153,148,145,143,142]"
     },
     {
       "name": "Após as capturas a leitura continua normal",
@@ -120,12 +120,12 @@
     {
       "name": "Arrastar no meio da página não move a janela e vira a folha",
       "pass": true,
-      "extra": "janela 233,50 → 233,50; vista 4 → 5"
+      "extra": "janela 270,60 → 270,60; vista 4 → 5"
     },
     {
       "name": "A alça ⠿ move a janela (sem mudar o tamanho)",
       "pass": true,
-      "extra": "233,50 → 293,90"
+      "extra": "270,60 → 330,100"
     },
     {
       "name": "Nenhum elemento usa a região de arrasto nativa (-webkit-app-region: drag)",
@@ -175,7 +175,7 @@
     {
       "name": "F11 entra em tela cheia e o livro ocupa a tela",
       "pass": true,
-      "extra": "janela 1600x1000, livro 1286x947"
+      "extra": "janela 1920x1200, livro 1558x1147"
     },
     {
       "name": "Esc sai da tela cheia",
@@ -205,7 +205,7 @@
     {
       "name": "Progresso salvo em config.json (userData)",
       "pass": true,
-      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1793261788830}, vol2={\"page\":6,\"total\":18,\"updated\":1793261793247}"
+      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1794333869177}, vol2={\"page\":6,\"total\":18,\"updated\":1794333873574}"
     },
     {
       "name": "Após reiniciar: seção \"Continuar lendo\" lista os volumes lidos",
@@ -225,7 +225,7 @@
     {
       "name": "Após reiniciar: tamanho/posição da janela lembrados",
       "pass": true,
-      "extra": "1135x900@234,50 → 1135x900@234,50"
+      "extra": "1380x1080@271,60 → 1380x1080@271,60"
     },
     {
       "name": "Protocolo manga:// só serve imagens das pastas escolhidas",
@@ -245,12 +245,12 @@
     {
       "name": "Duplas: a folha vira para a dupla com física (verso = metade da dupla)",
       "pass": true,
-      "extra": "{\"frames\":63,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
+      "extra": "{\"frames\":56,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
     },
     {
       "name": "Duplas: a imagem ocupa as duas páginas (metade esquerda + direita)",
       "pass": true,
-      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 42.8333px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-508px 42.8333px\"}] pw=508"
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 52px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-624px 52px\"}] pw=624"
     },
     {
       "name": "Duplas: contador mostra a página dupla",
@@ -265,7 +265,7 @@
     {
       "name": "Duplas: depois da dupla os pares continuam certos (5–6)",
       "pass": true,
-      "extra": "{\"k\":3,\"n\":12,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"5\",\"right\":\"4\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"5\",\"right\":\"4\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
     },
     {
       "name": "Duplas: página sozinha antes de dupla ganha página em branco (não some)",
@@ -285,12 +285,12 @@
     {
       "name": "Duplas: no modo ocidental a dupla continua inteira e na mesma posição",
       "pass": true,
-      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 42.8333px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-508px 42.8333px\"}]"
+      "extra": "[{\"page\":\"3\",\"half\":\"left\",\"blank\":false,\"hidden\":false,\"pos\":\"0px 52px\"},{\"page\":\"3\",\"half\":\"right\",\"blank\":false,\"hidden\":false,\"pos\":\"-624px 52px\"}]"
     },
     {
       "name": "Duplas: ocidental, seta → sai da dupla para 5–6",
       "pass": true,
-      "extra": "{\"k\":3,\"n\":12,\"dir\":\"ltr\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/e2e-repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"4\",\"right\":\"5\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
+      "extra": "{\"k\":3,\"n\":12,\"dir\":\"ltr\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/workspace/repo/amostras/avulso/Capitulo 02 - Paginas Duplas\",\"left\":\"4\",\"right\":\"5\",\"leftHidden\":false,\"rightHidden\":false,\"counter\":\"5–6 / 12\"}"
     },
     {
       "name": "Duplas: em página única cada imagem é uma vista e a dupla aparece inteira",
@@ -315,7 +315,7 @@
     {
       "name": "Duplas: em tela cheia a dupla ocupa o livro inteiro",
       "pass": true,
-      "extra": "livro 1286x947"
+      "extra": "livro 1558x1147"
     },
     {
       "name": "Duplas: arrastar o canto vira a página saindo da dupla",
@@ -323,14 +323,64 @@
       "extra": "5–6 / 12"
     },
     {
+      "name": "GIF: .gif/.GIF entram como páginas, na ordem natural, com tamanho lido do cabeçalho",
+      "pass": true,
+      "extra": "01.jpg:1024x1536,02.gif:400x600,03.jpg:1024x1536,04.gif:720x480,05.jpg:1024x1536,06.GIF:400x600"
+    },
+    {
+      "name": "GIF: GIF deitado vira página dupla, GIF em pé faz par como página comum",
+      "pass": true,
+      "extra": "-|0 1|2 S3 4|5"
+    },
+    {
+      "name": "GIF: contador conta o GIF como página (2–3 / 6)",
+      "pass": true,
+      "extra": "2–3 / 6"
+    },
+    {
+      "name": "GIF: a página GIF carrega e é mostrada como imagem (não canvas congelado)",
+      "pass": true,
+      "extra": "{\"bg\":\"tulo%2003%20-%20GIF%20Animado%2F02.gif\\\")\",\"tag\":\"DIV\",\"canvas\":0,\"nw\":400}"
+    },
+    {
+      "name": "GIF: a página GIF está animada no leitor (quadros mudam), a página JPG ao lado fica parada",
+      "pass": true,
+      "extra": "GIF 5.73% dos pixels mudaram, JPG 0.000%"
+    },
+    {
+      "name": "GIF: GIF deitado ocupa o livro aberto inteiro (metade em cada lado)",
+      "pass": true,
+      "extra": "4 / 6 3:left:true,3:right:true"
+    },
+    {
+      "name": "GIF: a dupla em GIF também anima",
+      "pass": true,
+      "extra": "4.94% dos pixels mudaram"
+    },
+    {
+      "name": "GIF: o filtro sépia/papel se aplica à página GIF",
+      "pass": true,
+      "extra": "sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972) | sepia(0.595) saturate(1.14) contrast(0.93) brightness(0.972)"
+    },
+    {
+      "name": "GIF: miniatura de um GIF carrega (pode ser capa)",
+      "pass": true,
+      "extra": "largura 400"
+    },
+    {
+      "name": "GIF (link): GIF do tamanho das páginas entra, GIF de anúncio cai; tamanho do GIF lido do cabeçalho",
+      "pass": true,
+      "extra": "a,g,b {\"w\":720,\"h\":480}"
+    },
+    {
       "name": "Link (núcleo): só páginas do grupo de resolução dominante e a dupla são mantidas, na ordem",
       "pass": true,
       "extra": "a,b,c,sp,d,e"
     },
     {
-      "name": "Link (núcleo): isca pequena, logo, banner, avatar, miniatura, quadrada, larga, GIF e arquivo minúsculo caem",
+      "name": "Link (núcleo): isca pequena, logo, banner, avatar, miniatura, quadrada, larga, GIF fora do tamanho e arquivo minúsculo caem",
       "pass": true,
-      "extra": "[\"logo:pequena\",\"btn:pequena\",\"avatar:pequena\",\"banner:pequena\",\"thumb:pequena\",\"a:duplicada\",\"tiny:arquivo-pequeno\",\"gif:formato\",\"related:resolução-diferente\",\"wide:proporção\",\"sq:proporção\",\"huge:resolução-diferente\",\"banner2:dupla-fora-do-padrão\"]"
+      "extra": "[\"logo:pequena\",\"btn:pequena\",\"avatar:pequena\",\"banner:pequena\",\"thumb:pequena\",\"a:duplicada\",\"tiny:arquivo-pequeno\",\"related:resolução-diferente\",\"wide:proporção\",\"sq:proporção\",\"gif:resolução-diferente\",\"huge:resolução-diferente\",\"banner2:dupla-fora-do-padrão\"]"
     },
     {
       "name": "Link (núcleo): sem nenhuma página em pé, nada é mantido",
@@ -388,7 +438,7 @@
       "extra": ""
     },
     {
-      "name": "Link: duplicadas (mesma URL e mesmo conteúdo) e iscas (logo, botões, avatar, banner, miniaturas, capa relacionada, quadrada, larga, minúscula, GIF, SVG) não entram",
+      "name": "Link: duplicadas (mesma URL e mesmo conteúdo) e iscas (logo, botões, avatar, banner, miniaturas, capa relacionada, quadrada, larga, minúscula, GIF fora do tamanho, SVG) não entram",
       "pass": true,
       "extra": ""
     },
@@ -480,7 +530,7 @@
     {
       "name": "Link: barra de progresso sobe de forma contínua (fases leitura → análise → download) e o diálogo fecha ao terminar",
       "pass": true,
-      "extra": "17 amostras, valores 16,27,30,57,71,84, fases probe,download"
+      "extra": "17 amostras, valores 16,27,30,57,64,84, fases probe,download"
     },
     {
       "name": "Link: texto de status mostra \"Baixando páginas (n/10)\" em português",
@@ -780,7 +830,7 @@
     {
       "name": "Fundo do leitor: escolher uma amostra muda o fundo do leitor ao vivo (sem recarregar) e fica opaco",
       "pass": true,
-      "extra": "38 ms"
+      "extra": "34 ms"
     },
     {
       "name": "Fundo do leitor: escolha salva na configuração",
@@ -830,7 +880,7 @@
     {
       "name": "Sépia: a página fica visivelmente mais quente/amarelada que a normal (R−B sobe) — captura lado a lado salva",
       "pass": true,
-      "extra": "{\"warmNormal\":1.2275391581008392,\"warmSepia\":19.857874449339207}"
+      "extra": "{\"warmNormal\":1.3363535280682868,\"warmSepia\":19.716236927515325}"
     },
     {
       "name": "Sépia: folha que vira (frente e verso, 28 faces) mantém o filtro no meio do movimento",
@@ -845,7 +895,7 @@
     {
       "name": "Sépia: não pesa na virada de página (tempo médio por quadro com sépia vs. sem, página parada em estado de física normal)",
       "pass": true,
-      "extra": "com sépia 17.9 ms/quadro, sem 21.8 ms/quadro"
+      "extra": "com sépia 22.6 ms/quadro, sem 29.5 ms/quadro"
     },
     {
       "name": "Sépia: a física não depende do filtro (mesmo número de tiras e passos; PHYS intacto)",

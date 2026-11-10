@@ -12,10 +12,10 @@ virada de página em 3D com curvatura, sombra e som de papel.
 
 ## Instalar e abrir
 
-| Sistema | Arquivo (aba **Releases** do GitHub) | Como usar |
+| Sistema | Arquivo ([release v0.4.2](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.4.2)) | Como usar |
 |---|---|---|
-| Windows (instalador) | `Yomuchu-0.4.1-win-x64.exe` | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
-| Linux (qualquer distro) | `Yomuchu-0.4.1-linux-x86_64.AppImage` | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
+| Windows (instalador) | [`Yomuchu-0.4.2-win-x64.exe`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.4.2/Yomuchu-0.4.2-win-x64.exe) | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
+| Linux (qualquer distro) | [`Yomuchu-0.4.2-linux-x64.AppImage`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.4.2/Yomuchu-0.4.2-linux-x64.AppImage) | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
 
 Também dá para abrir uma pasta direto pela linha de comando: `yomuchu "/caminho/do/volume"`.
 
@@ -26,7 +26,9 @@ Também dá para abrir uma pasta direto pela linha de comando: `yomuchu "/caminh
    - uma subpasta **com imagens** vira um **volume**;
    - uma subpasta **só com outras pastas** vira uma **série**, e as pastas de dentro viram os volumes (`Série/Volume 1`, `Série/Volume 2`…);
 3. A capa é a primeira imagem de cada volume. As miniaturas ficam guardadas em cache, então a biblioteca abre rápido da próxima vez.
-4. As páginas (JPG, JPEG, PNG e WebP) são ordenadas pela **ordem natural** dos nomes: `1, 2, 10` (e não `1, 10, 2`), `pagina2` antes de `pagina10`.
+4. As páginas (JPG, JPEG, PNG, WebP e **GIF**) são ordenadas pela **ordem natural** dos nomes: `1, 2, 10` (e não `1, 10, 2`), `pagina2` antes de `pagina10`.
+   - **GIF animado** funciona como qualquer outra página: entra na ordem natural, conta no total, pode ser capa, vira
+     **página dupla** se for deitado e recebe o filtro **sépia/papel** e o tema; no leitor ele **anima** normalmente.
 5. O programa lembra a **página onde você parou** em cada volume, a pasta da biblioteca, as preferências e o tamanho e a posição das janelas. A seção **Continuar lendo** mostra o que você começou.
 
 Exemplo de organização:
@@ -124,9 +126,9 @@ Logo abaixo ficam os "papéis" de cada tema (`--bg`, `--panel`, `--text`, `--mut
 - **Como as imagens certas são escolhidas** (`src/linkfetch.js`, constantes `PROFILE` e `LIMITS` no topo):
   1. coleta as URLs na ordem do documento (`src`, `data-src`, `data-original`, `data-lazy-src`, `srcset` (a maior),
      `<picture>`, `<noscript>`, URLs relativas, `<base>`), sem repetir;
-  2. lê só o **cabeçalho** de cada uma (pedido `Range`; JPEG, PNG e WebP) para saber largura e altura;
+  2. lê só o **cabeçalho** de cada uma (pedido `Range`; JPEG, PNG, WebP e GIF) para saber largura e altura;
   3. perfil de página de mangá: lado menor ≥ 500 px e maior ≥ 700 px, altura/largura entre 1,2 e 2,2 (páginas em pé),
-     duplas deitadas até 2,4 de largura/altura; arquivos < 10 KB, GIF e SVG caem;
+     duplas deitadas até 2,4 de largura/altura; arquivos < 10 KB e SVG caem; GIF passa pelas mesmas regras (GIFs de anúncio/ícone caem pelo tamanho e pelo grupo de resolução);
   4. fica o maior **grupo de resolução** (larguras dentro de ±15% da mediana) mais as duplas de ≈ 2× essa largura;
   5. baixa só as escolhidas (4 em paralelo, 2 novas tentativas, `Referer` da página, User-Agent identificado),
      descarta cópias idênticas (hash) e grava `001.jpg`, `002.jpg`… (a extensão vem do conteúdo).
