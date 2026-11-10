@@ -12,10 +12,12 @@ virada de página em 3D com curvatura, sombra e som de papel.
 
 ## Instalar e abrir
 
-| Sistema | Arquivo ([release v0.4.2](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.4.2)) | Como usar |
+| Sistema | Arquivo ([release v0.5.0](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.5.0)) | Como usar |
 |---|---|---|
-| Windows (instalador) | [`Yomuchu-0.4.2-win-x64.exe`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.4.2/Yomuchu-0.4.2-win-x64.exe) | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
-| Linux (qualquer distro) | [`Yomuchu-0.4.2-linux-x64.AppImage`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.4.2/Yomuchu-0.4.2-linux-x64.AppImage) | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
+| Windows (instalador) | [`Yomuchu-0.5.0-win-x64.exe`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.5.0/Yomuchu-0.5.0-win-x64.exe) | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
+| Linux (qualquer distro) | [`Yomuchu-0.5.0-linux-x64.AppImage`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.5.0/Yomuchu-0.5.0-linux-x64.AppImage) | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
+
+A versão estável anterior, **0.4.2** (sem GIF), continua disponível na [release v0.4.2](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.4.2) e no branch `estavel`.
 
 Também dá para abrir uma pasta direto pela linha de comando: `yomuchu "/caminho/do/volume"`.
 
@@ -82,6 +84,14 @@ Na biblioteca, clique com o botão direito numa capa para **ler do início**, **
 - Os dados ficam em `config.json` na pasta de dados do app:
   - Windows: `%APPDATA%\Yomuchu\`
   - Linux: `~/.config/Yomuchu/`
+
+## Novidades da versão 0.5.0
+
+- **GIF animado como página**: arquivos `.gif` entram na biblioteca e no leitor seguindo as mesmas regras das outras
+  imagens (ordem natural, contagem de páginas, capa, **página dupla** quando o GIF é deitado, papel/sépia e tema) e
+  **animam** no leitor. O "Abrir link" também aceita GIFs do tamanho das páginas (GIFs de anúncio continuam de fora).
+- Amostra de teste `amostras/avulso/Capitulo 03 - GIF Animado` (gerada por `tools/gerar_gif_amostra.py`).
+- README: tabela de download com os nomes certos dos arquivos.
 
 ## Novidades da versão 0.4.1
 
