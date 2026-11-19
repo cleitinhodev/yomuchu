@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../shared/theme.css">
 <link rel="stylesheet" href="library.css">
 <script src="../shared/theme.js"></script>
+<script src="../shared/seq.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -169,14 +170,53 @@
   <div class="modal-card link-card">
     <header><h2 id="linkTitle" data-i18n="link.title"></h2><button class="icon-btn" id="linkX" data-i18n-title="common.close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
     <div class="modal-body">
-      <p class="link-text" data-i18n="link.text"></p>
-      <input id="linkUrl" class="link-input" type="url" inputmode="url" autocomplete="off" spellcheck="false" data-i18n-ph="link.ph" dir="ltr">
+      <div class="seg link-tabs" id="linkTabs" role="tablist">
+        <button id="linkTabSingle" class="on" role="tab" aria-selected="true" data-v="single" data-i18n="link.tab.single"></button>
+        <button id="linkTabBatch" role="tab" aria-selected="false" data-v="batch" data-i18n="link.tab.batch"></button>
+      </div>
+      <div id="linkPanelSingle">
+        <p class="link-text" data-i18n="link.text"></p>
+        <input id="linkUrl" class="link-input" type="url" inputmode="url" autocomplete="off" spellcheck="false" data-i18n-ph="link.ph" dir="ltr">
+      </div>
+      <div id="linkPanelBatch" class="hidden">
+        <p class="link-text" data-i18n="link.batch.text"></p>
+        <div class="seg small" id="batchModes">
+          <button id="batchModeList" class="on" data-v="list" data-i18n="link.batch.modeList"></button>
+          <button id="batchModeSeq" data-v="seq" data-i18n="link.batch.modeSeq"></button>
+        </div>
+        <div id="batchPanelList">
+          <label class="batch-label" for="batchList" data-i18n="link.batch.listLabel"></label>
+          <textarea id="batchList" class="link-input batch-text" rows="5" autocomplete="off" spellcheck="false" data-i18n-ph="link.batch.listPh" dir="ltr"></textarea>
+          <div class="batch-preview" id="batchListInfo" aria-live="polite"></div>
+        </div>
+        <div id="batchPanelSeq" class="hidden">
+          <label class="batch-label" for="seqPattern" data-i18n="link.batch.patternLabel"></label>
+          <div class="batch-row">
+            <input id="seqPattern" class="link-input" type="text" inputmode="url" autocomplete="off" spellcheck="false" data-i18n-ph="link.batch.patternPh" dir="ltr">
+            <button id="seqInsert" class="btn ghost small" type="button" data-i18n-title="link.batch.insertTip"><span data-i18n="link.batch.insert"></span></button>
+          </div>
+          <div class="batch-grid">
+            <label><span data-i18n="link.batch.kind"></span>
+              <select id="seqKind"><option value="num" data-i18n="link.batch.kindNum"></option><option value="alpha" data-i18n="link.batch.kindAlpha"></option></select></label>
+            <label><span data-i18n="link.batch.from"></span><input id="seqStart" class="link-input" type="text" value="1" autocomplete="off" spellcheck="false" dir="ltr"></label>
+            <label><span data-i18n="link.batch.to"></span><input id="seqEnd" class="link-input" type="text" value="10" autocomplete="off" spellcheck="false" dir="ltr"></label>
+            <label><span data-i18n="link.batch.step"></span><input id="seqStep" class="link-input" type="number" min="1" max="1000" value="1" dir="ltr"></label>
+            <label id="seqPadWrap"><span data-i18n="link.batch.pad"></span>
+              <select id="seqPad"><option value="auto" data-i18n="link.batch.padAuto"></option><option value="2">2 (01)</option><option value="3">3 (001)</option><option value="4">4 (0001)</option><option value="5">5 (00001)</option></select></label>
+          </div>
+          <p class="batch-hint" data-i18n="link.batch.hintSeq"></p>
+          <div class="batch-preview" id="seqInfo" aria-live="polite"></div>
+        </div>
+        <label class="batch-label" for="batchName" data-i18n="link.batch.nameLabel"></label>
+        <input id="batchName" class="link-input" type="text" maxlength="120" autocomplete="off" spellcheck="false" data-i18n-ph="link.batch.namePh">
+      </div>
       <p class="link-legal" id="linkLegal" data-i18n="link.legal"></p>
       <div id="linkProg" class="link-prog hidden">
         <div id="linkBar" class="bar big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
         <div class="link-status"><span id="linkStatus"></span><b id="linkPct"></b></div>
       </div>
       <p id="linkMsg" class="link-msg hidden" role="alert"></p>
+      <div id="linkFails" class="link-fails hidden"><b id="linkFailsTitle"></b><ul id="linkFailsList" dir="ltr"></ul></div>
       <div class="confirm-actions">
         <button id="linkClose" class="btn ghost" data-i18n="common.cancel"></button>
         <button id="linkAbort" class="btn ghost hidden" data-i18n="link.abort"></button>

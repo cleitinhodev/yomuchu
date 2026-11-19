@@ -85,6 +85,29 @@ Na biblioteca, clique com o botão direito numa capa para **ler do início**, **
   - Windows: `%APPDATA%\Yomuchu\`
   - Linux: `~/.config/Yomuchu/`
 
+## Download em lote (branch `teste-lote`)
+
+No diálogo **Abrir link** (`Ctrl+L`) há duas abas: **Link único** (tudo como antes) e **Download em lote**, para sites em que
+cada página do capítulo tem o seu próprio endereço.
+
+- **Lista de links**: cole os endereços separados por **ponto e vírgula** (ou um por linha). `www.site.com/…` sem `https://` é aceito;
+  repetidos são ignorados.
+- **Sequência**: informe o endereço com **`{n}`** no lugar da parte que muda (ex.: `https://www.site.com/nome-do-manga/{n}`),
+  o tipo e o intervalo. Uma pré-visualização ao vivo mostra quantos links serão visitados, o primeiro e o último.
+  - **Números** de **De** até **Até** (passo opcional; vale também em ordem decrescente). Zeros à esquerda: `01` em "De" ou
+    "Até" detecta 2 dígitos (`01 … 29`); ou escolha 2 a 5 dígitos em **Dígitos**.
+  - **Letras** `a…z`, depois `aa`, `ab`… (maiúsculas se "De" for maiúscula).
+- Cada link contribui com **uma imagem**: a **maior imagem da página** (mesmo perfil mínimo do "Abrir link": lado menor ≥ 500 px,
+  maior ≥ 700 px, sem faixas/banners; GIF animado e dupla deitada valem; se a página só monta a imagem com JavaScript, usa a janela
+  oculta). Se o link já for uma imagem, ela é baixada direto. As imagens são salvas na ordem da lista/sequência (`001`, `002`…) numa
+  pasta da série **"Baixados de links"** (nome opcional; padrão "Lote de <site>"); a mesma imagem repetida entra só uma vez.
+- Limites e segurança: no máximo **500 links** por lote (acima de 100 o app pede confirmação), 3 páginas por vez com pequena pausa,
+  barra de progresso, **Cancelar**, links que falham são pulados e listados no fim (número, endereço e motivo); se os 8 primeiros
+  falham seguidos o lote para. Só `http`/`https`; o processo principal confere tudo de novo. Mesmo aviso de direitos: o Yomuchu não
+  contorna login, paywall, captcha nem proteção.
+- Código: `src/shared/seq.js` (lista, sequências e limites — compartilhado entre a interface e o app), `downloadBatch` em
+  `src/linkfetch.js` (constantes `LIMITS.batch*`), aba em `src/library/library.html|js|css`, textos `link.batch.*` nos 18 idiomas.
+
 ## Novidades da versão 0.5.0
 
 - **GIF animado como página**: arquivos `.gif` entram na biblioteca e no leitor seguindo as mesmas regras das outras

@@ -1,6 +1,6 @@
 {
-  "passed": 192,
-  "total": 192,
+  "passed": 242,
+  "total": 242,
   "results": [
     {
       "name": "Biblioteca vazia mostra tela inicial",
@@ -85,7 +85,7 @@
     {
       "name": "Arrastar o canto vira a página (com a folha seguindo o mouse)",
       "pass": true,
-      "extra": "t durante arrasto=0.65, 2–3 / 20"
+      "extra": "t durante arrasto=0.67, 2–3 / 20"
     },
     {
       "name": "Arrasto curto e lento é cancelado (página volta)",
@@ -105,12 +105,12 @@
     {
       "name": "Física: folha curva (borda atrasada), chega ao destino e balança antes de assentar",
       "pass": true,
-      "extra": "48 quadros, máx=0.996, curvatura=true, balanço após tocar a página=6.5°"
+      "extra": "48 quadros, máx=0.996, curvatura=true, balanço após tocar a página=6.8°"
     },
     {
       "name": "Capturas da física (curvatura em voo e onda ao assentar)",
       "pass": true,
-      "extra": "ângulos: [87,85,82,77,72,67,62,58,54,49,43,37,33,30] | [160,158,154,148,141,132,123,113,105,97,91,86,81,78] | [176,176,176,177,177,174,169,164,158,153,148,145,143,142]"
+      "extra": "ângulos: [86,84,81,76,71,66,61,57,53,48,42,36,32,30] | [162,160,156,150,143,135,125,116,107,99,93,88,84,81] | [177,177,178,179,175,169,162,155,147,141,136,134,133,133]"
     },
     {
       "name": "Após as capturas a leitura continua normal",
@@ -205,7 +205,7 @@
     {
       "name": "Progresso salvo em config.json (userData)",
       "pass": true,
-      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1794333869177}, vol2={\"page\":6,\"total\":18,\"updated\":1794333873574}"
+      "extra": "avulso={\"page\":10,\"total\":20,\"updated\":1795056602728}, vol2={\"page\":6,\"total\":18,\"updated\":1795056607142}"
     },
     {
       "name": "Após reiniciar: seção \"Continuar lendo\" lista os volumes lidos",
@@ -245,7 +245,7 @@
     {
       "name": "Duplas: a folha vira para a dupla com física (verso = metade da dupla)",
       "pass": true,
-      "extra": "{\"frames\":56,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
+      "extra": "{\"frames\":47,\"back\":{\"p\":3,\"half\":\"right\"},\"k\":2}"
     },
     {
       "name": "Duplas: a imagem ocupa as duas páginas (metade esquerda + direita)",
@@ -530,7 +530,7 @@
     {
       "name": "Link: barra de progresso sobe de forma contínua (fases leitura → análise → download) e o diálogo fecha ao terminar",
       "pass": true,
-      "extra": "17 amostras, valores 16,27,30,57,64,84, fases probe,download"
+      "extra": "17 amostras, valores 16,27,30,57,84, fases probe,download"
     },
     {
       "name": "Link: texto de status mostra \"Baixando páginas (n/10)\" em português",
@@ -588,6 +588,256 @@
       "extra": ""
     },
     {
+      "name": "Lote (núcleo): 1 até 29 gera 29 endereços sem zeros; \"www.\" ganha https://",
+      "pass": true,
+      "extra": "https://www.site.com/nome-do-manga/1 … https://www.site.com/nome-do-manga/29"
+    },
+    {
+      "name": "Lote (núcleo): 01 até 29 detecta 2 dígitos (01, 02… 29); 3 dígitos escolhidos dão 001…; passo 2 pula; ordem decrescente funciona",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (núcleo): letras a…z, depois aa, ab… (x até ab = x,y,z,aa,ab) e maiúsculas A…C",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (núcleo): erros claros (sem {n}, valor não numérico, passo 0, passa do limite de 500, letras misturadas, esquema perigoso)",
+      "pass": true,
+      "extra": "noPattern,badRange,badStep,tooMany,badAlpha,badUrl"
+    },
+    {
+      "name": "Lote (núcleo): lista separa por ; e por quebra de linha, completa https://, tira repetidos e acusa endereço inválido",
+      "pass": true,
+      "extra": "{\"urls\":[\"https://www.a.com/1\",\"https://b.com/2\",\"http://localhost:8080/x\"],\"invalid\":[\"file:///etc/passwd\"],\"dup\":1}"
+    },
+    {
+      "name": "Lote: o diálogo \"Abrir link\" ganha as abas \"Link único\" (padrão, igual ao de antes) e \"Download em lote\"",
+      "pass": true,
+      "extra": "{\"single\":true,\"batch\":false,\"tabs\":\"Link único|Download em lote\",\"go\":\"Baixar e abrir\"}"
+    },
+    {
+      "name": "Lote: aba \"Download em lote\" abre na lista de links, foca a caixa de texto, troca o botão e mantém o aviso de direitos",
+      "pass": true,
+      "extra": "{\"single\":false,\"batch\":true,\"list\":true,\"seq\":false,\"go\":\"Baixar lote e abrir\",\"legal\":true,\"focus\":\"batchList\",\"ph\":\"https://exemplo.com/nome-do-manga/1; https://exemplo.com/nome-do-manga/2; …\"}"
+    },
+    {
+      "name": "Lote (lista): pré-visualização conta os links (ponto e vírgula e quebra de linha) e ignora repetidos",
+      "pass": true,
+      "extra": "Links: 3 (repetidos ignorados: 1)"
+    },
+    {
+      "name": "Lote (lista): endereço inválido é apontado na hora",
+      "pass": true,
+      "extra": "Há um endereço inválido: file:///etc/passwd"
+    },
+    {
+      "name": "Lote (lista): \"Baixar lote\" com endereço inválido não baixa nada e mostra o erro",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (lista): caixa vazia pede pelo menos um link",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (sequência): 1 até 29 mostra 29 links, o primeiro e o último",
+      "pass": true,
+      "extra": "Serão visitados 29 links.Primeiro: https://exemplo.com/nome-do-manga/1Último: https://exemplo.com/nome-do-manga/29"
+    },
+    {
+      "name": "Lote (sequência): \"01\" detecta zeros à esquerda (2 dígitos): …/01 … …/29",
+      "pass": true,
+      "extra": "Serão visitados 29 links.Primeiro: https://exemplo.com/nome-do-manga/01Último: https://exemplo.com/nome-do-manga/29Zeros à esquerda: 2 dígitos"
+    },
+    {
+      "name": "Lote (sequência): tipo Letras troca para a…z (26 links), esconde \"Dígitos\" e mostra o último link",
+      "pass": true,
+      "extra": "Serão visitados 26 links.Primeiro: https://exemplo.com/nome-do-manga/aÚltimo: https://exemplo.com/nome-do-manga/z"
+    },
+    {
+      "name": "Lote (sequência): letras continuam depois do z (a até ab = 28 links)",
+      "pass": true,
+      "extra": "Serão visitados 28 links.Primeiro: https://exemplo.com/nome-do-manga/aÚltimo: https://exemplo.com/nome-do-manga/ab"
+    },
+    {
+      "name": "Lote (sequência): letras maiúsculas e minúsculas misturadas são recusadas com aviso",
+      "pass": true,
+      "extra": "Para letras, use só a–z (ou só A–Z) em “De” e “Até”, as duas na mesma caixa."
+    },
+    {
+      "name": "Lote (sequência): endereço sem {n} é apontado, e o botão \"Inserir {n}\" coloca {n} no cursor",
+      "pass": true,
+      "extra": "Coloque {n} no endereço, no lugar da parte que muda."
+    },
+    {
+      "name": "Lote (sequência): \"Inserir {n}\" resolve o aviso e atualiza a pré-visualização",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (sequência): mais de 500 links é recusado com o limite explicado",
+      "pass": true,
+      "extra": "São 1000 links, e o máximo por lote é 500."
+    },
+    {
+      "name": "Lote (sequência): passo 3 de 1 até 10 = 4 links (1, 4, 7, 10)",
+      "pass": true,
+      "extra": "Serão visitados 4 links.Primeiro: https://exemplo.com/nome-do-manga/1Último: https://exemplo.com/nome-do-manga/10"
+    },
+    {
+      "name": "Lote (árabe): textos traduzidos em RTL, campos de endereço continuam da esquerda para a direita, botão e pré-visualização no idioma",
+      "pass": true,
+      "extra": "{\"dir\":\"rtl\",\"tab\":\"تنزيل دفعة\",\"ltr\":\"ltr\",\"go\":\"نزّل الدفعة وافتحها\",\"vis\":true,\"info\":\"سيتم فتح 10 من الروابط.الأول: https://exemplo.com/nome-do-manga/1الأخير: https://exemplo.com/nome-do-manga/10\"}"
+    },
+    {
+      "name": "Lote: ao voltar ao português a aba e a pré-visualização também voltam",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (numérico 1…10): baixa a maior imagem de cada página, nomeia 001…010 e mantém a ordem da sequência",
+      "pass": true,
+      "extra": "{\"ok\":true,\"title\":\"Lote de 127.0.0.1\",\"pages\":10,\"failed\":0,\"failures\":[],\"dupes\":0,\"total\":10,\"batch\":true}"
+    },
+    {
+      "name": "Lote: nome padrão da pasta (\"Lote de 127.0.0.1\") dentro de \"Baixados de links\" e metadados do lote",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote: iscas (logo, botões, avatar, banner, miniaturas, capa relacionada) só têm o cabeçalho lido; só as 10 páginas são baixadas inteiras",
+      "pass": true,
+      "extra": "10 completas, 90 com Range"
+    },
+    {
+      "name": "Lote: Referer de cada imagem é a página do link; User-Agent educado",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote: refazer o mesmo lote substitui a pasta anterior (sem \"(2)\")",
+      "pass": true,
+      "extra": "Lote de 127.0.0.1"
+    },
+    {
+      "name": "Lote: nome do capítulo opcional é usado (saneado) como nome da pasta",
+      "pass": true,
+      "extra": "Meu Lote Cap 1"
+    },
+    {
+      "name": "Lote (zeros à esquerda 01…10): detecta 2 dígitos e baixa as 10 páginas em ordem",
+      "pass": true,
+      "extra": "{\"ok\":true,\"title\":\"Lote de 127.0.0.1 (2)\",\"pages\":10,\"failed\":0,\"failures\":[],\"dupes\":0,\"total\":10,\"batch\":true}"
+    },
+    {
+      "name": "Lote: sem zeros o site responde 404 e o erro é claro; escolher 2 dígitos à mão resolve",
+      "pass": true,
+      "extra": "[{\"ok\":false,\"code\":\"noPages\",\"detail\":\"http: HTTP 404\"},{\"ok\":true,\"title\":\"Pad forçado\",\"pages\":3,\"failed\":0,\"failures\":[],\"dupes\":0,\"total\":3,\"batch\":true}]"
+    },
+    {
+      "name": "Lote (letras a…e e A…C): baixa na ordem alfabética",
+      "pass": true,
+      "extra": "[5,3]"
+    },
+    {
+      "name": "Lote (letras a…aa): vai de a até z e continua em aa; páginas que não existem são puladas com resumo",
+      "pass": true,
+      "extra": "{\"pages\":6,\"failed\":21,\"total\":27,\"f0\":{\"n\":6,\"url\":\"http://127.0.0.1:45497/abc/f\",\"code\":\"http\",\"detail\":\"HTTP 404\"}}"
+    },
+    {
+      "name": "Lote (falhas): pula 403 (bloqueado), página sem imagem e 404, baixa o resto em ordem e resume cada falha com número e link",
+      "pass": true,
+      "extra": "2:blocked,3:noImage,5:http"
+    },
+    {
+      "name": "Lote (falhas seguidas): se os primeiros links todos falham o lote para cedo e não martela o site",
+      "pass": true,
+      "extra": "9 pedidos de 40"
+    },
+    {
+      "name": "Lote: nenhuma pasta temporária (.tmp-) sobra depois de falhas",
+      "pass": true,
+      "extra": "Capítulo 12 & teste – Site|Capítulo Curto|Capítulo JS|Capítulo Lento|Com falhas|Letras longas|Lote de 127.0.0.1|Lote de 127.0.0.1 (2)|Lote de 127.0.0.1 (3)|Lote de 127.0.0.1 (4)|Meu Lote Cap 1|Pad forçado"
+    },
+    {
+      "name": "Lote (lista manual): ; e quebra de linha, ordem da lista, link direto de imagem baixado direto, repetido ignorado",
+      "pass": true,
+      "extra": "{\"ok\":true,\"title\":\"Lista manual\",\"pages\":4,\"failed\":0,\"failures\":[],\"dupes\":0,\"total\":4,\"batch\":true}"
+    },
+    {
+      "name": "Lote: link direto de imagem usa a própria origem como Referer",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote: GIF animado vira página (.gif, igual ao original) e dupla deitada também é a \"maior imagem\"",
+      "pass": true,
+      "extra": "001.gif,002.jpg,003.jpg"
+    },
+    {
+      "name": "Lote: página que só monta a imagem por JavaScript usa a janela oculta (mesma lógica do Abrir link)",
+      "pass": true,
+      "extra": "{\"ok\":true,\"title\":\"Com JavaScript\",\"pages\":2,\"failed\":0,\"failures\":[],\"dupes\":0,\"total\":2,\"batch\":true}"
+    },
+    {
+      "name": "Lote: a mesma imagem em todas as páginas (cabeçalho/anúncio) entra uma vez só, é baixada uma vez e o resumo avisa",
+      "pass": true,
+      "extra": "{\"pages\":1,\"dupes\":4}"
+    },
+    {
+      "name": "Lote (segurança): o processo principal confere tudo (nulo, file://, vazio, sem {n}, 999 e 501 links) e não baixa nada",
+      "pass": true,
+      "extra": "empty,badUrl,empty,badSpec,tooMany,tooMany"
+    },
+    {
+      "name": "Lote: nenhum pedido a endereços recusados",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (interface): termina com \"3 páginas baixadas (3 falharam)\", lista cada link que falhou com o motivo e mostra \"Abrir pasta\"",
+      "pass": true,
+      "extra": "{\"msg\":\"✔ 3 páginas baixadas (3 falharam)\",\"fails\":[\"#2 http://127.0.0.1:45497/fail/2 — bloqueado pelo site (HTTP 403)\",\"#3 http://127.0.0.1:45497/fail/3 — nenhuma imagem de página encontrada\",\"#5 http://127.0.0.1:45497/fail/5 — erro do site (HTTP 404)\"],\"failsVis\":true,\"open\":true,\"go\":true}"
+    },
+    {
+      "name": "Lote (interface): o capítulo do lote abre no leitor com as 3 páginas",
+      "pass": true,
+      "extra": "{\"k\":0,\"n\":3,\"dir\":\"rtl\",\"mode\":\"double\",\"trans\":false,\"folder\":\"/tmp/yomuchu-e2e/baixados/Pela interface\",\"left\":\"0\",\"right\":\"\",\"leftHidden\":false,\"rightHidden\":true,\"counter\":\"Capa / 3\"}"
+    },
+    {
+      "name": "Lote (interface): ao reabrir o diálogo o resumo de falhas some e o estado volta ao normal",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote (interface): mais de 100 links pede confirmação (\"Lote grande … 150 endereços\") e \"Não\" não visita nenhum site",
+      "pass": true,
+      "extra": "{\"vis\":true,\"t\":\"Lote grande\",\"x\":\"Isso vai visitar 150 endereços do site. Continuar?\"}"
+    },
+    {
+      "name": "Lote: um segundo download durante o lote é recusado (busy) e os campos ficam travados enquanto baixa",
+      "pass": true,
+      "extra": "[{\"ok\":false,\"code\":\"busy\"},{\"tabs\":true,\"pat\":true,\"abort\":true}]"
+    },
+    {
+      "name": "Lote: Cancelar interrompe o lote (\"Download cancelado.\"), não visita todos os links e não deixa pasta temporária",
+      "pass": true,
+      "extra": "6 de 12 páginas visitadas"
+    },
+    {
+      "name": "Lote: depois de cancelar um novo lote funciona (sem travar em \"busy\")",
+      "pass": true,
+      "extra": ""
+    },
+    {
+      "name": "Lote: 50 textos novos nos 18 idiomas, com as mesmas variáveis e traduzidos",
+      "pass": true,
+      "extra": "{\"n\":18,\"keys\":50,\"bad5\":[],\"untranslated\":[]}"
+    },
+    {
       "name": "Link (segurança): excluir só funciona dentro de \"baixados\" (pasta avulsa fica intacta)",
       "pass": true,
       "extra": ""
@@ -595,7 +845,7 @@
     {
       "name": "Link: Configurações mostram quantos capítulos e quanto espaço os baixados ocupam",
       "pass": true,
-      "extra": "4 capítulos · 1.5 MB"
+      "extra": "18 capítulos · 4.4 MB"
     },
     {
       "name": "Link: apagar um capítulo baixado remove só ele",
@@ -830,7 +1080,7 @@
     {
       "name": "Fundo do leitor: escolher uma amostra muda o fundo do leitor ao vivo (sem recarregar) e fica opaco",
       "pass": true,
-      "extra": "34 ms"
+      "extra": "30 ms"
     },
     {
       "name": "Fundo do leitor: escolha salva na configuração",
@@ -880,7 +1130,7 @@
     {
       "name": "Sépia: a página fica visivelmente mais quente/amarelada que a normal (R−B sobe) — captura lado a lado salva",
       "pass": true,
-      "extra": "{\"warmNormal\":1.3363535280682868,\"warmSepia\":19.716236927515325}"
+      "extra": "{\"warmNormal\":1.3360279681051281,\"warmSepia\":19.716697720078542}"
     },
     {
       "name": "Sépia: folha que vira (frente e verso, 28 faces) mantém o filtro no meio do movimento",
@@ -895,7 +1145,7 @@
     {
       "name": "Sépia: não pesa na virada de página (tempo médio por quadro com sépia vs. sem, página parada em estado de física normal)",
       "pass": true,
-      "extra": "com sépia 22.6 ms/quadro, sem 29.5 ms/quadro"
+      "extra": "com sépia 24.8 ms/quadro, sem 35.0 ms/quadro"
     },
     {
       "name": "Sépia: a física não depende do filtro (mesmo número de tiras e passos; PHYS intacto)",

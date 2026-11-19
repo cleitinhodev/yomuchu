@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('mangaAPI', {
   testOpenedLinks: () => ipcRenderer.invoke('test:openedLinks'),
   // abrir link
   startLink: (url) => ipcRenderer.invoke('link:start', url),
+  startBatch: (spec) => ipcRenderer.invoke('link:startBatch', spec),
   cancelLink: () => ipcRenderer.invoke('link:cancel'),
   linkCacheInfo: () => ipcRenderer.invoke('link:cacheInfo'),
   deleteDownload: (folder) => ipcRenderer.invoke('link:delete', folder),

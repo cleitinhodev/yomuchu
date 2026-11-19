@@ -14,6 +14,7 @@ const path = require('path');
 const fs = require('fs');
 const fsp = fs.promises;
 const crypto = require('crypto');
+const YSeq = require('./shared/seq.js');
 
 // ============================================================== AJUSTES (perfil de página de mangá)
 const PROFILE = {
@@ -44,6 +45,12 @@ const LIMITS = {
   minPages: 2,                      // menos que isso = "nenhuma página encontrada" (uma capa solta não é capítulo)
   renderTimeoutMs: 60000,
   maxRedirects: 5,
+  // ---- download em lote
+  batchMax: 500,                    // máximo de links por lote
+  batchConcurrency: 3,              // páginas visitadas ao mesmo tempo (educado com o site)
+  batchDelayMs: 120,                // pausa antes de cada página do lote
+  batchCandidates: 80,              // imagens analisadas por página do lote
+  batchGiveUp: 8,                   // falhas seguidas, sem nenhum sucesso, interrompem o lote
 };
 const USER_AGENT = 'Mozilla/5.0 (compatible; Yomuchu/0.3; leitor pessoal; +https://www.bugzinho.com/)';
 
@@ -520,4 +527,146 @@ async function downloadChapter(rawUrl, opts) {
   }
 }
 
-module.exports = { PROFILE, LIMITS, PAGE_TYPES, USER_AGENT, LinkError, downloadChapter, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };
+// ============================================================== download em lote
+/** a maior imagem "com cara de página" de uma lista [{url,w,h,bytes?,type?}] (usa o mesmo perfil mínimo do "Abrir link"; GIF animado vale) */
+function pickLargest(items, P = PROFILE) {
+  const rank = (i) => {
+    const r = i.h / i.w;
+    if (r >= P.portraitMin && r <= P.portraitMax) return 0;                       // página em pé
+    if ((i.w > i.h && i.w / i.h <= P.spreadMax) || (r > P.portraitMax && r <= 20)) return 0; // dupla deitada ou tira longa
+    if (r >= 0.83 && r < P.portraitMin) return 2;                                 // quase quadrada (só se não houver nada melhor)
+    return 9;                                                                     // faixa/banner: nunca
+  };
+  const pool = items.filter((i) => i.w && i.h && (!i.type || PAGE_TYPES.includes(i.type)) && !(i.bytes != null && i.bytes < P.minBytes)
+    && Math.min(i.w, i.h) >= P.minShort && Math.max(i.w, i.h) >= P.minLong && rank(i) < 9);
+  pool.sort((a, b) => rank(a) - rank(b) || b.w * b.h - a.w * a.h);
+  return pool[0] || null;
+}
+
+/** busca um link do lote: devolve { image:true, finalUrl } se o link já é uma imagem, ou { html, finalUrl } */
+async function fetchPageOrImage(url, signal) {
+  // Referer = a própria origem: sites que protegem imagens contra "hotlink" também aceitam o link direto da imagem
+  const { res, finalUrl } = await httpGet(url, { headers: { Referer: new URL(url).origin + '/', Accept: 'text/html,application/xhtml+xml,image/avif,image/webp,image/png,image/jpeg,image/gif;q=0.9,*/*;q=0.5' }, signal, timeoutMs: LIMITS.htmlTimeoutMs });
+  if (BLOCK_STATUS.has(res.status)) { try { await res.body?.cancel(); } catch { /* */ } throw new LinkError('blocked', 'HTTP ' + res.status); }
+  if (!res.ok) { try { await res.body?.cancel(); } catch { /* */ } throw new LinkError('http', 'HTTP ' + res.status); }
+  const type = (res.headers.get('content-type') || '').toLowerCase();
+  if (/^image\/(jpeg|jpg|png|webp|gif)/.test(type)) { try { await res.body?.cancel(); } catch { /* */ } return { image: true, finalUrl }; }
+  const buf = await readUpTo(res, LIMITS.maxHtmlBytes, signal);
+  if (PAGE_TYPES.includes(sniffType(buf.subarray(0, 64)))) return { image: true, finalUrl };
+  let html;
+  const cs = /charset=([\w-]+)/i.exec(type);
+  try { html = new TextDecoder(cs ? cs[1] : 'utf-8').decode(buf); } catch { html = buf.toString('utf8'); }
+  return { html, finalUrl };
+}
+
+/**
+ * Lote: cada link contribui com UMA imagem (a maior da página; ou o próprio link, se for uma imagem), na ordem da lista.
+ * Salva em destRoot/<nome>/001.jpg… Falhas são puladas e listadas no resultado.
+ * opts: { destRoot, signal, onProgress(p), electron, name }
+ * -> { folder, title, pages, failed, failures:[{n,url,code,detail}], dupes, total }
+ */
+async function downloadBatch(rawUrls, opts) {
+  const { destRoot, electron } = opts;
+  const total = Array.isArray(rawUrls) ? rawUrls.length : 0;
+  if (!total) throw new LinkError('empty');
+  if (total > LIMITS.batchMax) throw new LinkError('tooMany', String(LIMITS.batchMax));
+  const urls = rawUrls.map((u) => normalizeInput(u));
+  const ac = new AbortController();
+  if (opts.signal) { if (opts.signal.aborted) ac.abort(); else opts.signal.addEventListener('abort', () => ac.abort(), { once: true }); }
+  const signal = ac.signal;
+  const progress = (done, failed) => { if (opts.onProgress) opts.onProgress({ phase: 'batch', done, total, failed, pct: 2 + 96 * done / total }); };
+  progress(0, 0);
+  await fsp.mkdir(destRoot, { recursive: true });
+  const tmp = path.join(destRoot, '.tmp-' + crypto.randomBytes(5).toString('hex'));
+  await fsp.mkdir(tmp, { recursive: true });
+  const ctx = { signal, total: 0, cookies: null };
+  const results = new Array(total);
+  const failures = [], chosenUrls = new Set();
+  let done = 0, dupUrl = 0, okCount = 0, consec = 0, fatal = null;
+
+  async function one(url, i) {
+    const f = path.join(tmp, `p${i}.part`);
+    const pg = await fetchPageOrImage(url, signal);
+    let target, referer, cookies = null;
+    if (pg.image) { target = { url: pg.finalUrl }; referer = new URL(pg.finalUrl).origin + '/'; }
+    else {
+      referer = pg.finalUrl;
+      const cands = extractCandidates(pg.html, pg.finalUrl).slice(0, LIMITS.batchCandidates);
+      const probed = await mapLimit(cands, LIMITS.probeConcurrency, async (u) => { const r = await probeImage(u, referer, signal, null); return { url: u, ...(r.error ? {} : r) }; }, signal);
+      target = pickLargest(probed);
+      if (!target && electron) { // imagens que só aparecem com JavaScript
+        let rr = null;
+        try { rr = await renderPage(pg.finalUrl, { signal, electron }); } catch (e) { if (e instanceof LinkError && e.code === 'cancelled') throw e; }
+        if (rr) {
+          const unknown = rr.items.filter((x) => !x.w || !x.h);
+          await mapLimit(unknown, LIMITS.probeConcurrency, async (it) => { const r = await probeImage(it.url, referer, signal, async (u) => rr.cookies(u)); if (!r.error) Object.assign(it, r); }, signal);
+          target = pickLargest(rr.items);
+          cookies = async (u) => rr.cookies(u);
+        }
+      }
+      if (!target) {
+        if (CHALLENGE.test(pg.html) && !cands.length) throw new LinkError('blocked', 'verificação anti-robô');
+        throw new LinkError('noImage');
+      }
+    }
+    if (chosenUrls.has(target.url)) { dupUrl++; return { dup: true }; } // a mesma imagem de novo (cabeçalho/anúncio): não baixa outra vez
+    chosenUrls.add(target.url);
+    try { return { ...(await downloadOne(target, referer, f, { signal, cookies, get total() { return ctx.total; }, set total(v) { ctx.total = v; } })), file: f }; }
+    catch (e) { chosenUrls.delete(target.url); await fsp.rm(f, { force: true }).catch(() => {}); throw e; }
+  }
+
+  try {
+    try {
+      await mapLimit(urls, LIMITS.batchConcurrency, async (url, i) => {
+        if (i >= LIMITS.batchConcurrency) await sleep(LIMITS.batchDelayMs, signal);
+        try { results[i] = await one(url, i); okCount++; consec = 0; }
+        catch (e) {
+          if (!(e instanceof LinkError)) e = new LinkError('network', String((e && e.message) || e).slice(0, 120));
+          if (['cancelled', 'tooBig'].includes(e.code)) throw e;
+          failures.push({ n: i + 1, url, code: e.code, detail: e.detail || '' });
+          if (!okCount && ++consec >= LIMITS.batchGiveUp) { fatal = e.code === 'blocked' ? e : new LinkError('noPages', `${consec} falhas seguidas no começo (${e.code}${e.detail ? ': ' + e.detail : ''})`); ac.abort(); throw fatal; }
+        }
+        progress(++done, failures.length);
+      }, signal);
+    } catch (e) {
+      if (fatal) throw fatal;
+      throw e;
+    }
+    failures.sort((a, b) => a.n - b.n);
+    const ok = results.filter((r) => r && !r.dup);
+    if (!ok.length) {
+      const f0 = failures[0];
+      throw (f0 && f0.code === 'blocked' ? new LinkError('blocked', f0.detail) : new LinkError('noPages', f0 ? `${f0.code}${f0.detail ? ': ' + f0.detail : ''}` : ''));
+    }
+    const seenHash = new Set(), finalList = [];
+    let dupHash = 0;
+    for (const r of ok) { if (seenHash.has(r.sha)) { dupHash++; await fsp.rm(r.file, { force: true }); continue; } seenHash.add(r.sha); finalList.push(r); }
+    progress(total, failures.length);
+    const width = Math.max(3, String(finalList.length).length);
+    finalList.forEach((r, i) => { r.name = String(i + 1).padStart(width, '0') + extFor(r.type); });
+    for (const r of finalList) await fsp.rename(r.file, path.join(tmp, r.name));
+    let host = 'link'; try { host = new URL(urls[0]).hostname.replace(/^www\./, ''); } catch { /* */ }
+    const title = sanitizeName(opts.name, sanitizeName(host + ' (lote)'));
+    const key = crypto.createHash('sha1').update(urls.join('\n')).digest('hex');
+    await fsp.writeFile(path.join(tmp, '.yomuchu-link.json'), JSON.stringify({ url: urls[0], title, date: Date.now(), pages: finalList.length, batch: true, links: total, failed: failures.length, key }, null, 1));
+    // pasta final: refazer o mesmo lote substitui a pasta anterior; nomes repetidos ganham " (2)"
+    let slug = title, n = 2;
+    const metaKey = async (d) => { try { return JSON.parse(await fsp.readFile(path.join(d, '.yomuchu-link.json'), 'utf8')).key; } catch { return null; } };
+    for (;;) {
+      const dest = path.join(destRoot, slug);
+      if (!fs.existsSync(dest)) break;
+      if ((await metaKey(dest)) === key) { await rmrf(dest); break; }
+      slug = `${title} (${n++})`;
+    }
+    const folder = path.join(destRoot, slug);
+    await fsp.rename(tmp, folder);
+    return { folder, title: slug, pages: finalList.length, failed: failures.length, failures, dupes: dupUrl + dupHash, total };
+  } catch (e) {
+    await rmrf(tmp);
+    if (e instanceof LinkError && e.code === 'cancelled') throw e;
+    if (opts.signal && opts.signal.aborted) throw new LinkError('cancelled');
+    throw e;
+  }
+}
+
+module.exports = { PROFILE, LIMITS, PAGE_TYPES, USER_AGENT, LinkError, downloadChapter, downloadBatch, pickLargest, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };

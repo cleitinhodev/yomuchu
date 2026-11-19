@@ -322,6 +322,7 @@ function applyI18n(p) {
   if (state.cfg) renderLook();
   document.title = 'Yomuchu — ' + t('lib.title');
   if (state.cfg && state.data) render();
+  if (window.__linkRefreshI18n) window.__linkRefreshI18n();
 }
 $('#setLang').onchange = async (e) => applyI18n(await api.setLanguage(e.target.value || null));
 api.onI18nChanged((p) => applyI18n(p));
@@ -349,7 +350,7 @@ async function clearHistory() {
 $('#btnClearHistory').onclick = clearHistory;
 
 // ------------------------------------------------------------ abrir link (baixar capítulo de uma URL)
-const link = { busy: false };
+const link = { busy: false, tab: 'single', mode: 'list' };
 const fmtSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(b >= 10485760 ? 0 : 1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
 function linkMsg(text, info, ok) { const m = $('#linkMsg'); m.textContent = text || ''; m.classList.toggle('hidden', !text); m.classList.toggle('info', !!info); m.classList.toggle('ok', !!ok); }
 // estado "concluído": mostra "Abrir pasta" (a pasta do capítulo que acabou de ser baixado) e troca Cancelar por Fechar
@@ -358,11 +359,14 @@ function linkSetDone(folder) {
   $('#linkOpenDir').classList.toggle('hidden', !folder);
   $('#linkGo').classList.toggle('hidden', !!folder);
   $('#linkClose').textContent = t(folder ? 'common.close' : 'common.cancel');
-  $('#linkUrl').disabled = false;
+  linkLock(false);
 }
+const LINK_FIELDS = '#linkUrl, #batchList, #seqPattern, #seqInsert, #seqKind, #seqStart, #seqEnd, #seqStep, #seqPad, #batchName, #linkTabs button, #batchModes button';
+function linkLock(b) { document.querySelectorAll(LINK_FIELDS).forEach((e) => { e.disabled = b; }); }
 function linkSetBusy(b) {
   link.busy = b;
-  $('#linkUrl').disabled = b;
+  linkLock(b);
+  if (b) linkFails(null);
   $('#linkGo').classList.toggle('hidden', b); $('#linkClose').classList.toggle('hidden', b); $('#linkAbort').classList.toggle('hidden', !b);
   $('#linkProg').classList.toggle('hidden', !b);
   if (b) linkMsg('');
@@ -375,14 +379,19 @@ function linkProgress(p) {
   bar.firstElementChild.style.width = known ? v + '%' : '';
   bar.setAttribute('aria-valuenow', String(v));
   $('#linkPct').textContent = known ? v + '%' : '';
-  $('#linkStatus').textContent = t('link.p.' + p.phase, { done: p.done, total: p.total });
+  $('#linkStatus').textContent = p.phase === 'batch' ? t(p.failed ? 'link.p.batchFail' : 'link.p.batch', { done: p.done, total: p.total, failed: p.failed || 0 }) : t('link.p.' + p.phase, { done: p.done, total: p.total });
   bar.dataset.phase = p.phase;
 }
 function openLinkDlg() {
   if (link.busy) return;
-  linkMsg(''); $('#linkProg').classList.add('hidden'); linkSetDone(null);
+  linkMsg(''); linkFails(null); $('#linkProg').classList.add('hidden'); linkSetDone(null);
   $('#linkDlg').classList.remove('hidden');
-  $('#linkUrl').focus(); $('#linkUrl').select();
+  linkFocus();
+}
+function linkFocus() {
+  if (link.tab === 'single') { $('#linkUrl').focus(); $('#linkUrl').select(); }
+  else if (link.mode === 'list') $('#batchList').focus();
+  else $('#seqPattern').focus();
 }
 function linkClose() {
   if (link.busy) return;
@@ -390,6 +399,7 @@ function linkClose() {
 }
 async function startLink() {
   if (link.busy) return;
+  if (link.tab === 'batch') return startBatch();
   const url = $('#linkUrl').value.trim();
   if (!/^https?:\/\/\S+$/i.test(url)) { linkMsg(t('link.e.badUrl')); $('#linkUrl').focus(); return; }
   linkSetDone(null); linkSetBusy(true); linkProgress({ phase: 'page', done: 0, total: 0, pct: 2 });
@@ -405,6 +415,115 @@ async function startLink() {
   } else if (r.code === 'cancelled') linkMsg(t('link.e.cancelled'), true);
   else linkMsg(t('link.e.' + (['badUrl', 'noPages', 'blocked', 'http', 'network', 'tooBig', 'busy'].includes(r.code) ? r.code : 'other'), { detail: r.detail || '' }));
 }
+// ---- Download em lote
+function batchSpec() {
+  if (link.mode === 'list') return { mode: 'list', text: $('#batchList').value, name: $('#batchName').value.trim() };
+  return { mode: 'seq', pattern: $('#seqPattern').value.trim(), kind: $('#seqKind').value, start: $('#seqStart').value.trim(), end: $('#seqEnd').value.trim(), step: $('#seqStep').value, pad: $('#seqPad').value, name: $('#batchName').value.trim() };
+}
+const escH = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+/** atualiza a pré-visualização ao vivo e devolve o resultado da conferência */
+function batchPreview() {
+  const spec = batchSpec();
+  const r = YSeq.resolveSpec(spec);
+  const box = link.mode === 'list' ? $('#batchListInfo') : $('#seqInfo');
+  const err = (key, vars) => { box.classList.add('err'); box.textContent = t(key, vars); };
+  box.classList.remove('err');
+  if (link.mode === 'list') {
+    const p = YSeq.parseList(spec.text);
+    if (!spec.text.trim()) { box.textContent = t('link.batch.listCount', { n: 0 }); return r; }
+    if (p.invalid.length) { err('link.batch.e.badUrl', { detail: p.invalid[0].slice(0, 80) }); return r; }
+    box.innerHTML = '<b>' + escH(t(p.dup ? 'link.batch.listDup' : 'link.batch.listCount', { n: p.urls.length, d: p.dup })) + '</b>' + (p.urls.length > YSeq.BATCH.maxLinks ? '<br>' + escH(t('link.batch.e.tooMany', { n: p.urls.length, max: YSeq.BATCH.maxLinks })) : '');
+    if (p.urls.length > YSeq.BATCH.maxLinks) box.classList.add('err');
+    return r;
+  }
+  if (!r.ok) {
+    if (r.error === 'tooMany') err('link.batch.e.tooMany', { n: r.count, max: YSeq.BATCH.maxLinks });
+    else if (r.error === 'badUrl') err('link.batch.e.badUrl', { detail: r.detail || '' });
+    else err('link.batch.e.' + r.error);
+    return r;
+  }
+  box.innerHTML = '<b>' + escH(t('link.batch.pvCount', { n: r.count })) + '</b><br>' + escH(t('link.batch.pvFirst')) + ' <code>' + escH(r.first) + '</code><br>' + escH(t('link.batch.pvLast')) + ' <code>' + escH(r.last) + '</code>'
+    + (spec.kind === 'num' && r.width ? '<br>' + escH(t('link.batch.pvPad', { w: r.width })) : '');
+  return r;
+}
+function linkFails(list, dupes) {
+  const box = $('#linkFails');
+  if (!list || !list.length) { box.classList.add('hidden'); $('#linkFailsList').textContent = ''; return; }
+  $('#linkFailsTitle').textContent = t('link.batch.failTitle', { n: list.length });
+  const ul = $('#linkFailsList'); ul.textContent = '';
+  const known = ['http', 'blocked', 'noImage', 'network'];
+  for (const f of list.slice(0, 50)) {
+    const li = document.createElement('li');
+    li.textContent = `#${f.n} ${f.url} — ` + t('link.batch.r.' + (known.includes(f.code) ? f.code : 'other'), { detail: f.detail || '' });
+    ul.appendChild(li);
+  }
+  box.classList.remove('hidden');
+}
+function setLinkTab(tab) {
+  link.tab = tab;
+  const batch = tab === 'batch';
+  $('#linkPanelSingle').classList.toggle('hidden', batch); $('#linkPanelBatch').classList.toggle('hidden', !batch);
+  for (const b of document.querySelectorAll('#linkTabs button')) { const on = b.dataset.v === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }
+  const go = $('#linkGo'); go.dataset.i18n = batch ? 'link.batch.start' : 'link.start'; go.textContent = t(go.dataset.i18n);
+  linkMsg(''); linkFails(null);
+  if (batch) batchPreview();
+  linkFocus();
+}
+function setBatchMode(mode) {
+  link.mode = mode;
+  $('#batchPanelList').classList.toggle('hidden', mode !== 'list'); $('#batchPanelSeq').classList.toggle('hidden', mode !== 'seq');
+  for (const b of document.querySelectorAll('#batchModes button')) b.classList.toggle('on', b.dataset.v === mode);
+  linkMsg('');
+  batchPreview(); linkFocus();
+}
+function seqKindChanged() {
+  const alpha = $('#seqKind').value === 'alpha';
+  $('#seqPadWrap').classList.toggle('hidden', alpha);
+  $('#seqPadWrap').parentElement.classList.toggle('alpha', alpha);
+  const a = $('#seqStart'), b = $('#seqEnd');
+  // troca os valores padrão ao mudar de tipo (só se ainda estão no valor padrão do outro tipo)
+  if (alpha && /^\d*$/.test(a.value) && /^\d*$/.test(b.value)) { a.value = 'a'; b.value = 'z'; }
+  if (!alpha && /^[a-zA-Z]*$/.test(a.value) && /^[a-zA-Z]*$/.test(b.value)) { a.value = '1'; b.value = '10'; }
+  batchPreview();
+}
+async function startBatch() {
+  const spec = batchSpec();
+  const r0 = batchPreview();
+  if (!r0.ok) {
+    if (r0.error === 'empty') linkMsg(t('link.batch.e.empty'));
+    else if (r0.error === 'tooMany') linkMsg(t('link.batch.e.tooMany', { n: r0.count, max: YSeq.BATCH.maxLinks }));
+    else if (r0.error === 'badUrl') linkMsg(t('link.batch.e.badUrl', { detail: r0.detail || '' }));
+    else linkMsg(t('link.batch.e.' + r0.error));
+    return;
+  }
+  if (r0.count > YSeq.BATCH.confirmAbove && !(await askConfirm({ title: t('link.batch.confirmTitle'), text: t('link.batch.confirmText', { n: r0.count }), yes: t('link.batch.confirmYes') }))) return;
+  linkSetDone(null); linkSetBusy(true); linkProgress({ phase: 'batch', done: 0, total: r0.count, failed: 0, pct: 2 });
+  const r = await api.startBatch(spec);
+  linkSetBusy(false);
+  if (r.ok) {
+    let doneText = r.failed ? t('link.doneSkip', { n: r.pages, f: r.failed }) : t('link.done', { n: r.pages });
+    if (r.dupes) doneText += ' · ' + t('link.batch.dupes', { d: r.dupes });
+    linkMsg('✔ ' + doneText, false, true); linkFails(r.failures); linkSetDone(r.folder);
+    toast(doneText);
+    await load();
+    open({ path: r.folder, series: t('links.series') });
+  } else if (r.code === 'cancelled') linkMsg(t('link.e.cancelled'), true);
+  else if (r.code === 'noPages') linkMsg(t('link.batch.e.noPages', { detail: r.detail || '' }));
+  else if (r.code === 'empty') linkMsg(t('link.batch.e.empty'));
+  else if (r.code === 'tooMany') linkMsg(t('link.batch.e.tooMany', { n: String(r.detail || '').split(' / ')[0], max: YSeq.BATCH.maxLinks }));
+  else if (r.code === 'badSpec') linkMsg(t('link.batch.e.badRange'));
+  else linkMsg(t('link.e.' + (['badUrl', 'blocked', 'http', 'network', 'tooBig', 'busy'].includes(r.code) ? r.code : 'other'), { detail: r.detail || '' }));
+}
+for (const b of document.querySelectorAll('#linkTabs button')) b.onclick = () => { if (!link.busy) setLinkTab(b.dataset.v); };
+for (const b of document.querySelectorAll('#batchModes button')) b.onclick = () => { if (!link.busy) setBatchMode(b.dataset.v); };
+for (const id of ['#batchList', '#seqPattern', '#seqStart', '#seqEnd', '#seqStep', '#seqPad']) $(id).addEventListener('input', batchPreview);
+$('#seqPad').addEventListener('change', batchPreview);
+$('#seqKind').addEventListener('change', seqKindChanged);
+$('#seqInsert').onclick = () => {
+  const el = $('#seqPattern'); const a = el.selectionStart ?? el.value.length, b = el.selectionEnd ?? a;
+  el.value = el.value.slice(0, a) + '{n}' + el.value.slice(b); el.focus(); el.setSelectionRange(a + 3, a + 3); batchPreview();
+};
+$('#seqPattern').addEventListener('keydown', (e) => { if (e.key === 'Enter') startLink(); });
 async function openDlDir(folder) {
   const r = await api.openDownloadsDir(folder);
   if (!r || !r.ok) toast(t('link.e.other', { detail: (r && r.error) || '' }), true);
@@ -419,6 +538,8 @@ $('#linkAbort').onclick = () => api.cancelLink();
 $('#linkClose').onclick = linkClose;
 $('#linkX').onclick = () => { if (link.busy) api.cancelLink(); else linkClose(); };
 api.onLinkProgress((p) => { if (link.busy) linkProgress(p); });
+// ao trocar o idioma com o diálogo aberto, refaz a pré-visualização
+window.__linkRefreshI18n = () => { if (link.tab === 'batch') batchPreview(); };
 
 async function refreshLinkCache() {
   const i = await api.linkCacheInfo();

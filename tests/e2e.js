@@ -747,6 +747,232 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     ok('Link: depois de cancelar um novo download funciona (sem travar em "busy")', reLaunch.ok === true);
     await lib.keyboard.press('Escape'); await sleep(200);
 
+    // ---------- 6c) 0.5.1-teste: "Download em lote" (lista de links e sequências) com outro site falso local
+    {
+      const YS = require(path.join(ROOT, 'src', 'shared', 'seq.js'));
+      // núcleo: sequências
+      const sq = (o) => YS.buildSequence({ pattern: 'www.site.com/nome-do-manga/{n}', kind: 'num', start: '1', end: '29', step: 1, pad: 'auto', ...o });
+      const a1 = sq({}), a2 = sq({ start: '01' }), a3 = sq({ pad: '3', start: '1', end: '3' }), a4 = sq({ step: 2, start: '1', end: '10' }), a5 = sq({ start: '5', end: '1' });
+      ok('Lote (núcleo): 1 até 29 gera 29 endereços sem zeros; "www." ganha https://', a1.ok && a1.count === 29 && a1.first === 'https://www.site.com/nome-do-manga/1' && a1.last === 'https://www.site.com/nome-do-manga/29' && a1.width === 0, a1.first + ' … ' + a1.last);
+      ok('Lote (núcleo): 01 até 29 detecta 2 dígitos (01, 02… 29); 3 dígitos escolhidos dão 001…; passo 2 pula; ordem decrescente funciona', a2.width === 2 && a2.first.endsWith('/01') && a2.last.endsWith('/29') && a3.urls.map((u) => u.split('/').pop()).join() === '001,002,003' && a4.urls.map((u) => u.split('/').pop()).join() === '1,3,5,7,9' && a5.urls.map((u) => u.split('/').pop()).join() === '5,4,3,2,1');
+      const al = YS.buildSequence({ pattern: 'h.com/{n}', kind: 'alpha', start: 'x', end: 'ab' }), au = YS.buildSequence({ pattern: 'h.com/{n}', kind: 'alpha', start: 'A', end: 'C' });
+      ok('Lote (núcleo): letras a…z, depois aa, ab… (x até ab = x,y,z,aa,ab) e maiúsculas A…C', al.urls.map((u) => u.split('/').pop()).join() === 'x,y,z,aa,ab' && au.urls.map((u) => u.split('/').pop()).join() === 'A,B,C');
+      const errs = [sq({ pattern: 'h.com/x' }).error, sq({ start: 'a' }).error, sq({ step: 0 }).error, sq({ end: '900' }).error, YS.buildSequence({ pattern: 'h.com/{n}', kind: 'alpha', start: 'a', end: 'B' }).error, YS.buildSequence({ pattern: 'file:///{n}', kind: 'num', start: '1', end: '2' }).error];
+      ok('Lote (núcleo): erros claros (sem {n}, valor não numérico, passo 0, passa do limite de 500, letras misturadas, esquema perigoso)', errs.join() === 'noPattern,badRange,badStep,tooMany,badAlpha,badUrl', errs.join());
+      const pl = YS.parseList('www.a.com/1; https://b.com/2;\nhttp://localhost:8080/x ; www.a.com/1;file:///etc/passwd');
+      ok('Lote (núcleo): lista separa por ; e por quebra de linha, completa https://, tira repetidos e acusa endereço inválido', pl.urls.join(' ') === 'https://www.a.com/1 https://b.com/2 http://localhost:8080/x' && pl.dup === 1 && pl.invalid.join() === 'file:///etc/passwd', JSON.stringify(pl));
+
+      // site falso do lote
+      const blog = [];
+      let BH = '';
+      const imgs = Array.from({ length: 10 }, (_, i) => `p${i + 1}.jpg`);
+      const decoy = '<header><img src="/img/logo.png"><a><img src="/img/btn.png"></a><img src="/img/avatar.jpg"></header><div class="ad"><img src="/img/banner.jpg"></div><aside><img src="/img/thumb1.jpg"><img src="/img/thumb2.jpg"><img src="/img/related.jpg"></aside>';
+      const decoyLite = decoy.replace('<img src="/img/related.jpg">', ''); // sem a "capa relacionada" (520x740 passa no tamanho mínimo)
+      const pageOf = (img, extra) => ({ html: `<html><head><title>Página ${img}</title></head><body>${img ? decoy : decoyLite}<main>${img ? `<img src="/img/${img}">` : ''}</main>${extra || ''}<footer><img src="/img/thumb3.jpg"></footer></body></html>` });
+      const route = (pn) => {
+        let m;
+        if ((m = /^\/num\/([1-9]\d*)$/.exec(pn)) && +m[1] <= 10) return pageOf(imgs[+m[1] - 1]);
+        if ((m = /^\/pad\/(\d\d)$/.exec(pn)) && +m[1] >= 1 && +m[1] <= 10) return pageOf(imgs[+m[1] - 1]);
+        if ((m = /^\/abc\/([a-e])$/.exec(pn))) return pageOf(imgs['abcde'.indexOf(m[1])]);
+        if (pn === '/abc/aa') return pageOf('p6.jpg');
+        if ((m = /^\/ABC\/([A-C])$/.exec(pn))) return pageOf(imgs['ABC'.indexOf(m[1])]);
+        if ((m = /^\/fail\/([1-6])$/.exec(pn))) { const n = +m[1]; return n === 2 ? { status: 403, html: 'negado' } : n === 3 ? pageOf(null) : n === 5 ? null : pageOf(imgs[n - 1]); }
+        if (pn === '/gif/1') return pageOf('anim.gif');
+        if (pn === '/spread/1') return pageOf('spread.jpg');
+        if ((m = /^\/dup\/([1-5])$/.exec(pn))) return pageOf('p1.jpg');
+        if ((m = /^\/js\/([1-9])$/.exec(pn))) return { html: `<html><head><title>JS ${m[1]}</title></head><body>${decoyLite}<script>setTimeout(function(){var i=new Image();i.src='/img/p${m[1]}.jpg';document.body.appendChild(i);},150);</script></body></html>` };
+        if ((m = /^\/slow\/(\d+)$/.exec(pn))) return { delay: 450, ...pageOf(imgs[(+m[1] - 1) % 10]) };
+        return null;
+      };
+      const bserver = http.createServer((req, res) => {
+        const u = new URL(req.url, 'http://x');
+        if (u.pathname.startsWith('/img/')) {
+          const name = path.basename(u.pathname), f = path.join(FAKE, name);
+          const ent = { path: u.pathname, range: req.headers.range || null, referer: req.headers.referer || null, ua: req.headers['user-agent'] || '' };
+          blog.push(ent);
+          if (!fs.existsSync(f)) { res.writeHead(404); return res.end(); }
+          if (!ent.referer || !ent.referer.startsWith(BH + '/')) { res.writeHead(403); return res.end('sem referer'); }
+          const buf = fs.readFileSync(f);
+          const type = /\.png$/.test(f) ? 'image/png' : /\.webp$/.test(f) ? 'image/webp' : /\.gif$/.test(f) ? 'image/gif' : 'image/jpeg';
+          const m = /bytes=(\d+)-(\d+)?/.exec(req.headers.range || '');
+          if (m) { const a = +m[1], b = Math.min(buf.length - 1, m[2] ? +m[2] : buf.length - 1); res.writeHead(206, { 'Content-Type': type, 'Content-Range': `bytes ${a}-${b}/${buf.length}`, 'Content-Length': b - a + 1 }); return res.end(buf.subarray(a, b + 1)); }
+          res.writeHead(200, { 'Content-Type': type, 'Content-Length': buf.length }); return res.end(buf);
+        }
+        blog.push({ path: u.pathname, page: true, ua: req.headers['user-agent'] || '' });
+        const o = route(u.pathname);
+        if (!o) { res.writeHead(404); return res.end('404'); }
+        const send = () => { res.writeHead(o.status || 200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(o.html); };
+        o.delay ? setTimeout(send, o.delay) : send();
+      });
+      await new Promise((r) => bserver.listen(0, '127.0.0.1', r));
+      BH = 'http://127.0.0.1:' + bserver.address().port;
+      const B = (spec) => lib.evaluate((s) => window.mangaAPI.startBatch(s), spec);
+      const seqSpec = (p, o) => ({ mode: 'seq', pattern: BH + p, kind: 'num', start: '1', end: '10', step: 1, pad: 'auto', ...(o || {}) });
+      const srcOf = (name) => path.join(FAKE, name);
+      const sameAs = (folder, names) => { const fs2 = files(folder); return fs2.length === names.length && fs2.every((f, i) => sha(path.join(folder, f)) === sha(srcOf(names[i]))); };
+      const nameOf = (n, ext) => String(n).padStart(3, '0') + (ext || '.jpg');
+
+      // ---- interface: aba, painéis, pré-visualização ao vivo, erros
+      await lib.bringToFront().catch(() => {});
+      if (await lib.evaluate(() => !document.querySelector('#linkDlg').classList.contains('hidden'))) { await lib.keyboard.press('Escape'); await sleep(200); }
+      await lib.click('#btnOpenLink'); await sleep(250);
+      const t0 = await lib.evaluate(() => ({ single: !document.querySelector('#linkPanelSingle').classList.contains('hidden'), batch: !document.querySelector('#linkPanelBatch').classList.contains('hidden'), tabs: [...document.querySelectorAll('#linkTabs button')].map((b) => b.textContent).join('|'), go: document.querySelector('#linkGo').textContent }));
+      ok('Lote: o diálogo "Abrir link" ganha as abas "Link único" (padrão, igual ao de antes) e "Download em lote"', t0.single && !t0.batch && t0.tabs === 'Link único|Download em lote' && t0.go === 'Baixar e abrir', JSON.stringify(t0));
+      await lib.click('#linkTabBatch'); await sleep(200);
+      const t1 = await lib.evaluate(() => ({ single: !document.querySelector('#linkPanelSingle').classList.contains('hidden'), batch: !document.querySelector('#linkPanelBatch').classList.contains('hidden'), list: !document.querySelector('#batchPanelList').classList.contains('hidden'), seq: !document.querySelector('#batchPanelSeq').classList.contains('hidden'), go: document.querySelector('#linkGo').textContent, legal: document.querySelector('#linkLegal').offsetWidth > 0, focus: document.activeElement.id, ph: document.querySelector('#batchList').placeholder }));
+      ok('Lote: aba "Download em lote" abre na lista de links, foca a caixa de texto, troca o botão e mantém o aviso de direitos', !t1.single && t1.batch && t1.list && !t1.seq && t1.go === 'Baixar lote e abrir' && t1.legal && t1.focus === 'batchList' && /;/.test(t1.ph), JSON.stringify(t1));
+      await lib.fill('#batchList', 'https://x.com/1;https://x.com/2\nwww.x.com/3; https://x.com/1'); await sleep(150);
+      ok('Lote (lista): pré-visualização conta os links (ponto e vírgula e quebra de linha) e ignora repetidos', (await lib.textContent('#batchListInfo')) === 'Links: 3 (repetidos ignorados: 1)', await lib.textContent('#batchListInfo'));
+      await lib.fill('#batchList', 'https://x.com/1;file:///etc/passwd'); await sleep(150);
+      const badL = await lib.evaluate(() => ({ t: document.querySelector('#batchListInfo').textContent, err: document.querySelector('#batchListInfo').classList.contains('err') }));
+      ok('Lote (lista): endereço inválido é apontado na hora', badL.err && /endereço inválido: file:\/\/\/etc\/passwd/.test(badL.t), badL.t);
+      await lib.click('#linkGo'); await sleep(200);
+      ok('Lote (lista): "Baixar lote" com endereço inválido não baixa nada e mostra o erro', /endereço inválido/.test(await lib.textContent('#linkMsg')) && !(await lib.isVisible('#linkProg')));
+      await lib.fill('#batchList', ''); await lib.click('#linkGo'); await sleep(200);
+      ok('Lote (lista): caixa vazia pede pelo menos um link', /pelo menos um link/.test(await lib.textContent('#linkMsg')));
+      await lib.click('#batchModeSeq'); await sleep(200);
+      const pv = async () => lib.evaluate(() => ({ t: document.querySelector('#seqInfo').textContent, err: document.querySelector('#seqInfo').classList.contains('err'), pad: document.querySelector('#seqPadWrap').classList.contains('hidden') }));
+      await lib.fill('#seqPattern', 'https://exemplo.com/nome-do-manga/{n}'); await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '29'); await sleep(150);
+      let q = await pv();
+      ok('Lote (sequência): 1 até 29 mostra 29 links, o primeiro e o último', /Serão visitados 29 links/.test(q.t) && q.t.includes('https://exemplo.com/nome-do-manga/1') && q.t.includes('https://exemplo.com/nome-do-manga/29') && !/Zeros/.test(q.t) && !q.err, q.t);
+      await lib.screenshot({ path: path.join(SHOTS, 'link-lote-sequencia.png') });
+      await lib.fill('#seqStart', '01'); await sleep(150); q = await pv();
+      ok('Lote (sequência): "01" detecta zeros à esquerda (2 dígitos): …/01 … …/29', /…|Primeiro/.test(q.t) && q.t.includes('/nome-do-manga/01') && q.t.includes('/nome-do-manga/29') && /Zeros à esquerda: 2 dígitos/.test(q.t), q.t);
+      await lib.selectOption('#seqKind', 'alpha'); await sleep(150); q = await pv();
+      const aState = await lib.evaluate(() => ({ s: document.querySelector('#seqStart').value, e: document.querySelector('#seqEnd').value }));
+      ok('Lote (sequência): tipo Letras troca para a…z (26 links), esconde "Dígitos" e mostra o último link', aState.s === 'a' && aState.e === 'z' && /Serão visitados 26 links/.test(q.t) && q.t.includes('/nome-do-manga/z') && q.pad, q.t);
+      await lib.fill('#seqEnd', 'ab'); await sleep(150); q = await pv();
+      ok('Lote (sequência): letras continuam depois do z (a até ab = 28 links)', /Serão visitados 28 links/.test(q.t) && q.t.includes('/nome-do-manga/ab'), q.t);
+      await lib.fill('#seqEnd', 'B'); await sleep(150); q = await pv();
+      ok('Lote (sequência): letras maiúsculas e minúsculas misturadas são recusadas com aviso', q.err && /mesma caixa/.test(q.t), q.t);
+      await lib.selectOption('#seqKind', 'num'); await lib.fill('#seqPattern', 'https://exemplo.com/nome-do-manga/'); await sleep(150); q = await pv();
+      ok('Lote (sequência): endereço sem {n} é apontado, e o botão "Inserir {n}" coloca {n} no cursor', q.err && /Coloque \{n\}/.test(q.t), q.t);
+      await lib.click('#seqInsert'); await sleep(150);
+      ok('Lote (sequência): "Inserir {n}" resolve o aviso e atualiza a pré-visualização', (await lib.inputValue('#seqPattern')) === 'https://exemplo.com/nome-do-manga/{n}' && !(await pv()).err);
+      await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '1000'); await sleep(150); q = await pv();
+      ok('Lote (sequência): mais de 500 links é recusado com o limite explicado', q.err && /1000 links/.test(q.t) && /500/.test(q.t), q.t);
+      await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '10'); await lib.fill('#seqStep', '3'); await sleep(150); q = await pv();
+      ok('Lote (sequência): passo 3 de 1 até 10 = 4 links (1, 4, 7, 10)', /Serão visitados 4 links/.test(q.t), q.t);
+      await lib.fill('#seqStep', '1');
+
+      // ---- idioma: árabe (direita para esquerda) e volta
+      await lib.evaluate(() => window.mangaAPI.setLanguage('ar')); await sleep(400);
+      const ar = await lib.evaluate(() => ({ dir: document.documentElement.dir, tab: document.querySelector('#linkTabBatch').textContent, ltr: document.querySelector('#seqPattern').dir, go: document.querySelector('#linkGo').textContent, vis: document.querySelector('#linkPanelBatch').offsetWidth > 0, info: document.querySelector('#seqInfo').textContent }));
+      ok('Lote (árabe): textos traduzidos em RTL, campos de endereço continuam da esquerda para a direita, botão e pré-visualização no idioma', ar.dir === 'rtl' && ar.tab === 'تنزيل دفعة' && ar.ltr === 'ltr' && ar.vis && /^نزّل الدفعة/.test(ar.go) && /10/.test(ar.info) && !/Serão/.test(ar.info), JSON.stringify(ar));
+      await lib.evaluate(() => window.mangaAPI.setLanguage(null)); await sleep(400);
+      ok('Lote: ao voltar ao português a aba e a pré-visualização também voltam', (await lib.textContent('#linkTabBatch')) === 'Download em lote' && /Serão visitados 10 links/.test((await pv()).t));
+      await lib.keyboard.press('Escape'); await sleep(200);
+
+      // ---- download numérico (API): ordem, iscas fora, Referer, pasta
+      const n0 = blog.length;
+      const r1 = await B(seqSpec('/num/{n}'));
+      const f1 = r1.ok ? files(r1.folder) : [];
+      ok('Lote (numérico 1…10): baixa a maior imagem de cada página, nomeia 001…010 e mantém a ordem da sequência', r1.ok && r1.pages === 10 && r1.failed === 0 && f1.join() === Array.from({ length: 10 }, (_, i) => nameOf(i + 1)).join() && sameAs(r1.folder, imgs), JSON.stringify({ ...r1, folder: undefined }));
+      ok('Lote: nome padrão da pasta ("Lote de 127.0.0.1") dentro de "Baixados de links" e metadados do lote', r1.ok && r1.title === 'Lote de 127.0.0.1' && path.dirname(r1.folder) === DL && JSON.parse(fs.readFileSync(path.join(r1.folder, '.yomuchu-link.json'), 'utf8')).batch === true);
+      const reqs1 = blog.slice(n0).filter((e) => !e.page);
+      const full1 = reqs1.filter((e) => !e.range);
+      ok('Lote: iscas (logo, botões, avatar, banner, miniaturas, capa relacionada) só têm o cabeçalho lido; só as 10 páginas são baixadas inteiras', full1.length === 10 && full1.every((e) => /^\/img\/p\d+\.jpg$/.test(e.path)) && reqs1.filter((e) => e.range).length >= 70, `${full1.length} completas, ${reqs1.filter((e) => e.range).length} com Range`);
+      ok('Lote: Referer de cada imagem é a página do link; User-Agent educado', full1.every((e, i) => /^http:\/\/127\.0\.0\.1:\d+\/num\/\d+$/.test(e.referer)) && reqs1.every((e) => /Yomuchu/.test(e.ua)));
+      const r1b = await B(seqSpec('/num/{n}'));
+      ok('Lote: refazer o mesmo lote substitui a pasta anterior (sem "(2)")', r1b.ok && r1b.folder === r1.folder && fs.readdirSync(DL).filter((d) => d.startsWith('Lote de')).length === 1, r1b.title);
+      const r1c = await B(seqSpec('/num/{n}', { name: 'Meu Lote: Cap/1', end: '3' }));
+      ok('Lote: nome do capítulo opcional é usado (saneado) como nome da pasta', r1c.ok && r1c.title === 'Meu Lote Cap 1' && files(r1c.folder).length === 3, r1c.title);
+      // zeros à esquerda
+      const r2 = await B(seqSpec('/pad/{n}', { start: '01', end: '10' }));
+      ok('Lote (zeros à esquerda 01…10): detecta 2 dígitos e baixa as 10 páginas em ordem', r2.ok && r2.pages === 10 && sameAs(r2.folder, imgs), JSON.stringify({ ...r2, folder: undefined }));
+      const r2b = await B(seqSpec('/pad/{n}', { start: '1', end: '3' }));
+      const r2c = await B(seqSpec('/pad/{n}', { start: '1', end: '3', pad: '2', name: 'Pad forçado' }));
+      ok('Lote: sem zeros o site responde 404 e o erro é claro; escolher 2 dígitos à mão resolve', r2b.ok === false && r2b.code === 'noPages' && /http/.test(r2b.detail) && r2c.ok && r2c.pages === 3 && sameAs(r2c.folder, imgs.slice(0, 3)), JSON.stringify([r2b, { ...r2c, folder: undefined }]));
+      // letras
+      const r3 = await B(seqSpec('/abc/{n}', { kind: 'alpha', start: 'a', end: 'e' }));
+      const r3b = await B(seqSpec('/ABC/{n}', { kind: 'alpha', start: 'A', end: 'C' }));
+      ok('Lote (letras a…e e A…C): baixa na ordem alfabética', r3.ok && r3.pages === 5 && sameAs(r3.folder, imgs.slice(0, 5)) && r3b.ok && r3b.pages === 3 && sameAs(r3b.folder, imgs.slice(0, 3)), JSON.stringify([r3.pages, r3b.pages]));
+      const r3c = await B(seqSpec('/abc/{n}', { kind: 'alpha', start: 'a', end: 'aa', name: 'Letras longas' }));
+      ok('Lote (letras a…aa): vai de a até z e continua em aa; páginas que não existem são puladas com resumo', r3c.ok && r3c.pages === 6 && r3c.failed === 21 && r3c.failures[0].n === 6 && r3c.failures[0].code === 'http' && r3c.total === 27 && sameAs(r3c.folder, imgs.slice(0, 6)), JSON.stringify({ pages: r3c.pages, failed: r3c.failed, total: r3c.total, f0: r3c.failures && r3c.failures[0] }));
+      // falhas
+      const r4 = await B(seqSpec('/fail/{n}', { end: '6', name: 'Com falhas' }));
+      const fcodes = r4.ok ? r4.failures.map((f) => `${f.n}:${f.code}`).join() : '';
+      ok('Lote (falhas): pula 403 (bloqueado), página sem imagem e 404, baixa o resto em ordem e resume cada falha com número e link', r4.ok && r4.pages === 3 && r4.failed === 3 && fcodes === '2:blocked,3:noImage,5:http' && r4.failures.every((f) => f.url.startsWith(BH + '/fail/')) && sameAs(r4.folder, ['p1.jpg', 'p4.jpg', 'p6.jpg']), fcodes);
+      const r4b = await B(seqSpec('/dead/{n}', { end: '40' }));
+      const deadReqs = blog.filter((e) => e.page && e.path.startsWith('/dead/')).length;
+      ok('Lote (falhas seguidas): se os primeiros links todos falham o lote para cedo e não martela o site', r4b.ok === false && r4b.code === 'noPages' && deadReqs <= 12 && deadReqs >= 8, `${deadReqs} pedidos de 40`);
+      ok('Lote: nenhuma pasta temporária (.tmp-) sobra depois de falhas', dlDirs().every((d) => !d.startsWith('.tmp-')), dlDirs().join('|'));
+      // lista manual
+      const n5 = blog.length;
+      const r5 = await B({ mode: 'list', text: `${BH}/num/2;${BH}/num/1\n ${BH}/img/p9.jpg ; ${BH}/num/3;${BH}/num/2`, name: 'Lista manual' });
+      ok('Lote (lista manual): ; e quebra de linha, ordem da lista, link direto de imagem baixado direto, repetido ignorado', r5.ok && r5.pages === 4 && sameAs(r5.folder, ['p2.jpg', 'p1.jpg', 'p9.jpg', 'p3.jpg']), JSON.stringify({ ...r5, folder: undefined }));
+      const directReq = blog.slice(n5).filter((e) => !e.page && e.path === '/img/p9.jpg' && !e.range);
+      ok('Lote: link direto de imagem usa a própria origem como Referer', directReq.length >= 1 && directReq.every((e) => e.referer === BH + '/'));
+      // GIF, dupla, JavaScript, repetidas
+      const r6 = await B({ mode: 'list', text: `${BH}/gif/1;${BH}/num/2;${BH}/spread/1`, name: 'GIF e dupla' });
+      const f6 = r6.ok ? files(r6.folder) : [];
+      ok('Lote: GIF animado vira página (.gif, igual ao original) e dupla deitada também é a "maior imagem"', r6.ok && f6.join() === '001.gif,002.jpg,003.jpg' && sameAs(r6.folder, ['anim.gif', 'p2.jpg', 'spread.jpg']), f6.join());
+      const r7 = await B({ mode: 'seq', pattern: BH + '/js/{n}', kind: 'num', start: '2', end: '3', name: 'Com JavaScript' });
+      ok('Lote: página que só monta a imagem por JavaScript usa a janela oculta (mesma lógica do Abrir link)', r7.ok && r7.pages === 2 && sameAs(r7.folder, ['p2.jpg', 'p3.jpg']), JSON.stringify({ ...r7, folder: undefined }));
+      const nd = blog.length;
+      const r8 = await B({ mode: 'seq', pattern: BH + '/dup/{n}', kind: 'num', start: '1', end: '5', name: 'Repetidas' });
+      ok('Lote: a mesma imagem em todas as páginas (cabeçalho/anúncio) entra uma vez só, é baixada uma vez e o resumo avisa', r8.ok && r8.pages === 1 && r8.dupes === 4 && blog.slice(nd).filter((e) => !e.page && !e.range).length === 1, JSON.stringify({ pages: r8.pages, dupes: r8.dupes }));
+      // validações no processo principal
+      const v = [await B(null), await B({ mode: 'list', text: 'file:///etc/passwd' }), await B({ mode: 'list', text: '' }), await B({ mode: 'seq', pattern: 'h.com/x', kind: 'num', start: '1', end: '2' }), await B({ mode: 'seq', pattern: 'h.com/{n}', kind: 'num', start: '1', end: '999' }), await B({ mode: 'list', text: Array.from({ length: 501 }, (_, i) => 'https://h.com/' + i).join(';') })];
+      ok('Lote (segurança): o processo principal confere tudo (nulo, file://, vazio, sem {n}, 999 e 501 links) e não baixa nada', v.every((x) => x.ok === false) && v[1].code === 'badUrl' && v[2].code === 'empty' && v[3].code === 'badSpec' && v[4].code === 'tooMany' && v[5].code === 'tooMany', v.map((x) => x.code).join());
+      ok('Lote: nenhum pedido a endereços recusados', !blog.some((e) => /etc\/passwd/.test(e.path)));
+
+      // ---- pela interface: sequência com falhas (resumo na tela), leitor abre
+      await lib.bringToFront().catch(() => {});
+      await lib.click('#btnOpenLink'); await sleep(250); await lib.click('#linkTabBatch'); await sleep(150); await lib.click('#batchModeSeq');
+      await lib.fill('#seqPattern', BH + '/fail/{n}'); await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '6'); await lib.fill('#batchName', 'Pela interface'); await sleep(150);
+      await lib.click('#linkGo');
+      await rd.waitForFunction((d) => (window.__reader.folder || '').endsWith('Pela interface'), null, { timeout: 60000 });
+      await sleep(600);
+      const ui = await lib.evaluate(() => ({ msg: document.querySelector('#linkMsg').textContent, fails: [...document.querySelectorAll('#linkFailsList li')].map((l) => l.textContent), failsVis: !document.querySelector('#linkFails').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').classList.contains('hidden'), go: document.querySelector('#linkGo').classList.contains('hidden') }));
+      await lib.screenshot({ path: path.join(SHOTS, 'link-lote-resumo.png') });
+      ok('Lote (interface): termina com "3 páginas baixadas (3 falharam)", lista cada link que falhou com o motivo e mostra "Abrir pasta"', /3 páginas baixadas \(3 falharam\)/.test(ui.msg) && ui.failsVis && ui.fails.length === 3 && /#2 .*\/fail\/2 — bloqueado pelo site \(HTTP 403\)/.test(ui.fails[0]) && /#3 .*nenhuma imagem de página/.test(ui.fails[1]) && /#5 .*erro do site \(HTTP 404\)/.test(ui.fails[2]) && ui.open && ui.go, JSON.stringify(ui));
+      const rdst = await rstate(rd);
+      ok('Lote (interface): o capítulo do lote abre no leitor com as 3 páginas', rdst.n === 3 && rdst.folder.endsWith('Pela interface'), JSON.stringify(rdst));
+      await lib.keyboard.press('Escape'); await sleep(200);
+      await lib.click('#btnOpenLink'); await sleep(250);
+      ok('Lote (interface): ao reabrir o diálogo o resumo de falhas some e o estado volta ao normal', !(await lib.isVisible('#linkFails')) && (await lib.isVisible('#linkGo')));
+      // lote grande pede confirmação (e "Não" não baixa nada)
+      await lib.fill('#seqPattern', BH + '/num/{n}'); await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '150'); await sleep(150);
+      const nBig = blog.length;
+      await lib.click('#linkGo'); await sleep(300);
+      const cf = await lib.evaluate(() => ({ vis: !document.querySelector('#confirm').classList.contains('hidden'), t: document.querySelector('#confirmTitle').textContent, x: document.querySelector('#confirmText').textContent }));
+      await lib.click('#confirmNo'); await sleep(300);
+      ok('Lote (interface): mais de 100 links pede confirmação ("Lote grande … 150 endereços") e "Não" não visita nenhum site', cf.vis && cf.t === 'Lote grande' && /150 endereços/.test(cf.x) && blog.length === nBig && !(await lib.isVisible('#linkProg')), JSON.stringify(cf));
+      // cancelar um lote em andamento
+      await lib.fill('#seqPattern', BH + '/slow/{n}'); await lib.fill('#seqEnd', '12'); await sleep(150);
+      const slow0 = blog.filter((e) => e.page && e.path.startsWith('/slow/')).length;
+      await lib.click('#linkGo');
+      await lib.waitForFunction(() => /^Baixando o lote \(\d+\/12\)/.test(document.querySelector('#linkStatus').textContent) && +document.querySelector('#linkBar').getAttribute('aria-valuenow') > 2, null, { timeout: 30000 });
+      const busyB = await lib.evaluate(() => window.mangaAPI.startBatch({ mode: 'list', text: 'http://127.0.0.1:9/' }));
+      const lockd = await lib.evaluate(() => ({ tabs: [...document.querySelectorAll('#linkTabs button')].every((b) => b.disabled), pat: document.querySelector('#seqPattern').disabled, abort: !document.querySelector('#linkAbort').classList.contains('hidden') }));
+      await lib.screenshot({ path: path.join(SHOTS, 'link-lote-progresso.png') });
+      await lib.click('#linkAbort');
+      await lib.waitForFunction(() => !document.querySelector('#linkMsg').classList.contains('hidden'), null, { timeout: 15000 });
+      await sleep(900);
+      const slowN = blog.filter((e) => e.page && e.path.startsWith('/slow/')).length - slow0;
+      ok('Lote: um segundo download durante o lote é recusado (busy) e os campos ficam travados enquanto baixa', busyB.ok === false && busyB.code === 'busy' && lockd.tabs && lockd.pat && lockd.abort, JSON.stringify([busyB, lockd]));
+      ok('Lote: Cancelar interrompe o lote ("Download cancelado."), não visita todos os links e não deixa pasta temporária', /Download cancelado/.test(await lib.textContent('#linkMsg')) && slowN < 12 && dlDirs().every((d) => !d.startsWith('.tmp-')) && (await lib.isVisible('#linkGo')), `${slowN} de 12 páginas visitadas`);
+      const again = await B(seqSpec('/num/{n}', { end: '2', name: 'Depois de cancelar' }));
+      ok('Lote: depois de cancelar um novo lote funciona (sem travar em "busy")', again.ok && again.pages === 2);
+      await lib.keyboard.press('Escape'); await sleep(200);
+
+      // ---- traduções: as chaves novas existem nos 18 idiomas com as mesmas variáveis
+      {
+        const LD5 = path.join(ROOT, 'src', 'locales');
+        const L5 = fs.readdirSync(LD5).filter((f) => f.endsWith('.json')).map((f) => [f, JSON.parse(fs.readFileSync(path.join(LD5, f), 'utf8'))]);
+        const en5 = L5.find(([f]) => f === 'en.json')[1];
+        const keys5 = Object.keys(en5).filter((k) => k.startsWith('link.batch.') || k.startsWith('link.tab.') || k === 'link.p.batch' || k === 'link.p.batchFail');
+        const vars = (s) => (String(s).match(/\{\w+\}/g) || []).sort().join();
+        const bad5 = [];
+        for (const [f, d] of L5) for (const k of keys5) if (!d[k] || vars(d[k]) !== vars(en5[k])) bad5.push(f + ':' + k);
+        const pt = L5.find(([f]) => f === 'pt-BR.json')[1];
+        const untranslated = L5.filter(([f, d]) => f !== 'en.json' && f !== 'pt-BR.json' && ['link.tab.batch', 'link.batch.text', 'link.batch.start', 'link.batch.e.badStep'].some((k) => d[k] === en5[k])).map(([f]) => f);
+        ok(`Lote: ${keys5.length} textos novos nos 18 idiomas, com as mesmas variáveis e traduzidos`, L5.length === 18 && keys5.length >= 50 && bad5.length === 0 && untranslated.length === 0 && pt['link.tab.batch'] === 'Download em lote', JSON.stringify({ n: L5.length, keys: keys5.length, bad5: bad5.slice(0, 5), untranslated }));
+      }
+      await new Promise((r) => bserver.close(r));
+    }
+
     // ---------- 7) apagar cache, segurança da exclusão, traduções, README
     const outside = await lib.evaluate((p) => window.mangaAPI.deleteDownload(p), LOOSE);
     ok('Link (segurança): excluir só funciona dentro de "baixados" (pasta avulsa fica intacta)', outside === false && fs.existsSync(LOOSE));

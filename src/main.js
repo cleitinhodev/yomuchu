@@ -170,6 +170,7 @@ async function imageSize(file) {
 }
 const linkfetch = require('./linkfetch');
 const { parseImageSize } = linkfetch;
+const YSeq = require('./shared/seq.js');
 
 // ---------------------------------------------------------------- leitura de pastas
 async function listImages(dir) {
@@ -506,6 +507,28 @@ ipcMain.handle('link:start', async (e, url) => {
     });
     allowRoot(DL_DIR);
     return { ok: true, folder: r.folder, title: r.title, pages: r.pages, failed: r.failed, truncated: r.truncated, usedRender: r.usedRender, stats: r.stats };
+  } catch (err) {
+    if (err instanceof linkfetch.LinkError) return { ok: false, code: err.code, detail: err.detail };
+    return { ok: false, code: 'other', detail: String((err && err.message) || err).slice(0, 200) };
+  } finally { linkJob = null; }
+});
+// ---- Abrir link, modo "Download em lote": lista de links ou sequência (a interface só manda a especificação; aqui tudo é conferido de novo)
+ipcMain.handle('link:startBatch', async (e, spec) => {
+  if (linkJob) return { ok: false, code: 'busy' };
+  const r0 = YSeq.resolveSpec(spec && typeof spec === 'object' ? spec : null);
+  if (!r0.ok) return { ok: false, code: r0.error === 'empty' ? 'empty' : r0.error === 'tooMany' ? 'tooMany' : r0.error === 'badUrl' ? 'badUrl' : 'badSpec', detail: r0.error === 'tooMany' ? `${r0.count} / ${YSeq.BATCH.maxLinks}` : r0.detail || r0.error || '' };
+  const ac = new AbortController();
+  linkJob = { ac };
+  const sender = e.sender;
+  try {
+    let host = 'link'; try { host = new URL(r0.urls[0]).hostname.replace(/^www\./, ''); } catch { /* */ }
+    const name = typeof spec.name === 'string' ? spec.name.trim().slice(0, 120) : '';
+    const r = await linkfetch.downloadBatch(r0.urls, {
+      destRoot: DL_DIR, signal: ac.signal, electron: require('electron'), name: name || t('link.batch.defaultName', { host }),
+      onProgress: (p) => { if (!sender.isDestroyed()) sender.send('link:progress', p); },
+    });
+    allowRoot(DL_DIR);
+    return { ok: true, folder: r.folder, title: r.title, pages: r.pages, failed: r.failed, failures: r.failures.slice(0, 50), dupes: r.dupes, total: r.total, batch: true };
   } catch (err) {
     if (err instanceof linkfetch.LinkError) return { ok: false, code: err.code, detail: err.detail };
     return { ok: false, code: 'other', detail: String((err && err.message) || err).slice(0, 200) };
