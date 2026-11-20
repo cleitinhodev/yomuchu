@@ -334,6 +334,7 @@ let confirmResolve = null;
 function askConfirm(txt) {
   const d = txt || { title: t('hist.confirmTitle'), text: t('hist.confirmText'), yes: t('hist.clear') };
   $('#confirmTitle').textContent = d.title; $('#confirmText').textContent = d.text; $('#confirmYes').textContent = d.yes;
+  $('#confirmYes').classList.toggle('danger', d.danger !== false);
   $('#confirm').classList.remove('hidden'); $('#confirmNo').focus();
   return new Promise((r) => { confirmResolve = r; });
 }
@@ -353,13 +354,17 @@ $('#btnClearHistory').onclick = clearHistory;
 const link = { busy: false, tab: 'single', mode: 'list' };
 const fmtSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(b >= 10485760 ? 0 : 1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
 function linkMsg(text, info, ok) { const m = $('#linkMsg'); m.textContent = text || ''; m.classList.toggle('hidden', !text); m.classList.toggle('info', !!info); m.classList.toggle('ok', !!ok); }
-// estado "concluído": mostra "Abrir pasta" (a pasta do capítulo que acabou de ser baixado) e troca Cancelar por Fechar
+// depois de um download: lembra a pasta do capítulo (botão de pasta) e troca Cancelar por Fechar; "Baixar e abrir" nunca muda
 function linkSetDone(folder) {
-  link.lastFolder = folder || null;
-  $('#linkOpenDir').classList.toggle('hidden', !folder);
-  $('#linkGo').classList.toggle('hidden', !!folder);
+  if (folder) link.lastFolder = folder;
   $('#linkClose').textContent = t(folder ? 'common.close' : 'common.cancel');
-  linkLock(false);
+  linkFolderBtn();
+}
+/** botão de pasta: abre a pasta do último capítulo baixado; sem nenhum, a pasta "Baixados de links" se existir; senão fica desativado */
+async function linkFolderBtn() {
+  let exists = false;
+  try { exists = !!(await api.linkCacheInfo()).exists; } catch { /* */ }
+  $('#linkOpenDir').disabled = !(link.lastFolder || exists);
 }
 const LINK_FIELDS = '#linkUrl, #batchList, #seqPattern, #seqInsert, #seqKind, #seqStart, #seqEnd, #seqStep, #seqPad, #batchName, #linkTabs button, #batchModes button';
 function linkLock(b) { document.querySelectorAll(LINK_FIELDS).forEach((e) => { e.disabled = b; }); }
@@ -403,7 +408,7 @@ async function startLink() {
   const url = $('#linkUrl').value.trim();
   if (!/^https?:\/\/\S+$/i.test(url)) { linkMsg(t('link.e.badUrl')); $('#linkUrl').focus(); return; }
   linkSetDone(null); linkSetBusy(true); linkProgress({ phase: 'page', done: 0, total: 0, pct: 2 });
-  const r = await api.startLink(url);
+  const r = await api.startLink(url, { confirmDup: true });
   linkSetBusy(false);
   if (r.ok) {
     const doneText = r.failed ? t('link.doneSkip', { n: r.pages, f: r.failed }) : t('link.done', { n: r.pages });
@@ -496,9 +501,9 @@ async function startBatch() {
     else linkMsg(t('link.batch.e.' + r0.error));
     return;
   }
-  if (r0.count > YSeq.BATCH.confirmAbove && !(await askConfirm({ title: t('link.batch.confirmTitle'), text: t('link.batch.confirmText', { n: r0.count }), yes: t('link.batch.confirmYes') }))) return;
+  if (r0.count > YSeq.BATCH.confirmAbove && !(await askConfirm({ title: t('link.batch.confirmTitle'), text: t('link.batch.confirmText', { n: r0.count }), yes: t('link.batch.confirmYes'), danger: false }))) return;
   linkSetDone(null); linkSetBusy(true); linkProgress({ phase: 'batch', done: 0, total: r0.count, failed: 0, pct: 2 });
-  const r = await api.startBatch(spec);
+  const r = await api.startBatch(spec, { confirmDup: true });
   linkSetBusy(false);
   if (r.ok) {
     let doneText = r.failed ? t('link.doneSkip', { n: r.pages, f: r.failed }) : t('link.done', { n: r.pages });
@@ -525,7 +530,8 @@ $('#seqInsert').onclick = () => {
 };
 $('#seqPattern').addEventListener('keydown', (e) => { if (e.key === 'Enter') startLink(); });
 async function openDlDir(folder) {
-  const r = await api.openDownloadsDir(folder);
+  let r = await api.openDownloadsDir(folder);
+  if ((!r || !r.ok) && folder) r = await api.openDownloadsDir(); // a pasta do capítulo sumiu: abre "baixados"
   if (!r || !r.ok) toast(t('link.e.other', { detail: (r && r.error) || '' }), true);
 }
 $('#linkOpenDir').onclick = () => openDlDir(link.lastFolder);
@@ -538,6 +544,11 @@ $('#linkAbort').onclick = () => api.cancelLink();
 $('#linkClose').onclick = linkClose;
 $('#linkX').onclick = () => { if (link.busy) api.cancelLink(); else linkClose(); };
 api.onLinkProgress((p) => { if (link.busy) linkProgress(p); });
+// já existe um capítulo com esse nome: avisa e só baixa uma cópia ("Nome (1)") se o usuário confirmar
+api.onLinkDuplicate(async ({ title }) => {
+  const yes = await askConfirm({ title: t('link.dup.title'), text: t('link.dup.text', { name: title }), yes: t('link.dup.yes'), danger: false });
+  api.answerDuplicate(yes);
+});
 // ao trocar o idioma com o diálogo aberto, refaz a pré-visualização
 window.__linkRefreshI18n = () => { if (link.tab === 'batch') batchPreview(); };
 
@@ -549,6 +560,7 @@ async function refreshLinkCache() {
 async function clearDownloads() {
   if (!(await askConfirm({ title: t('links.confirmTitle'), text: t('links.confirmText'), yes: t('links.clear') }))) return;
   await api.clearDownloads();
+  link.lastFolder = null;
   state.series = null;
   await load(); refreshLinkCache();
   toast(t('links.cleared'));
@@ -556,6 +568,7 @@ async function clearDownloads() {
 async function deleteDownload(it) {
   if (!(await askConfirm({ title: t('links.confirmOneTitle'), text: it.title, yes: t('links.deleteOne') }))) return;
   await api.deleteDownload(it.path);
+  if (link.lastFolder === it.path) link.lastFolder = null;
   await load(); refreshLinkCache();
   toast(t('links.cleared'));
 }

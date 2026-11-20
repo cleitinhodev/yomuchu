@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "bị trang web chặn ({detail})",
  "link.batch.r.noImage": "không tìm thấy ảnh trang",
  "link.batch.r.network": "lỗi mạng ({detail})",
- "link.batch.r.other": "thất bại ({detail})"
+ "link.batch.r.other": "thất bại ({detail})",
+ "link.dup.title": "Chương đã tồn tại",
+ "link.dup.text": "Đã có chương tên “{name}”. Có thể bạn đã tải bộ manga này rồi. Tải lại dưới dạng bản sao?",
+ "link.dup.yes": "Vẫn tải"
 }

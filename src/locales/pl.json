@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "zablokowane przez witrynę ({detail})",
  "link.batch.r.noImage": "nie znaleziono obrazu strony",
  "link.batch.r.network": "błąd sieci ({detail})",
- "link.batch.r.other": "błąd ({detail})"
+ "link.batch.r.other": "błąd ({detail})",
+ "link.dup.title": "Rozdział już istnieje",
+ "link.dup.text": "Rozdział o nazwie „{name}” już istnieje. Możliwe, że ta manga została już pobrana. Pobrać ją ponownie jako kopię?",
+ "link.dup.yes": "Pobierz mimo to"
 }

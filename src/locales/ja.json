@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "サイトにブロックされました（{detail}）",
  "link.batch.r.noImage": "ページの画像が見つかりません",
  "link.batch.r.network": "ネットワークエラー（{detail}）",
- "link.batch.r.other": "失敗（{detail}）"
+ "link.batch.r.other": "失敗（{detail}）",
+ "link.dup.title": "チャプターは既にあります",
+ "link.dup.text": "「{name}」という名前のチャプターは既に存在します。このマンガは既にダウンロード済みかもしれません。コピーとして再度ダウンロードしますか？",
+ "link.dup.yes": "それでもダウンロード"
 }

@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "diblokir situs ({detail})",
  "link.batch.r.noImage": "gambar halaman tidak ditemukan",
  "link.batch.r.network": "gangguan jaringan ({detail})",
- "link.batch.r.other": "gagal ({detail})"
+ "link.batch.r.other": "gagal ({detail})",
+ "link.dup.title": "Bab sudah ada",
+ "link.dup.text": "Bab bernama “{name}” sudah ada. Mungkin Anda sudah mengunduh manga ini. Unduh lagi sebagai salinan?",
+ "link.dup.yes": "Tetap unduh"
 }

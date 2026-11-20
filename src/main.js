@@ -495,7 +495,14 @@ ipcMain.handle('library:scan', async () => {
 });
 // ---- Abrir link (baixar capítulo de uma URL)
 let linkJob = null;
-ipcMain.handle('link:start', async (e, url) => {
+// Já existe uma pasta com o nome do capítulo: a interface pergunta ("Baixar mesmo assim?"); sem interface (opts.confirmDup) baixa como cópia "Nome (1)"
+const askDuplicate = (sender, job) => (title) => new Promise((resolve) => {
+  if (sender.isDestroyed() || job.ac.signal.aborted) return resolve(false);
+  job.dupResolve = resolve;
+  sender.send('link:duplicate', { title });
+});
+ipcMain.handle('link:dupAnswer', (e, yes) => { if (linkJob && linkJob.dupResolve) { const r = linkJob.dupResolve; linkJob.dupResolve = null; r(!!yes); } return true; });
+ipcMain.handle('link:start', async (e, url, opts) => {
   if (linkJob) return { ok: false, code: 'busy' };
   const ac = new AbortController();
   linkJob = { ac };
@@ -503,6 +510,7 @@ ipcMain.handle('link:start', async (e, url) => {
   try {
     const r = await linkfetch.downloadChapter(url, {
       destRoot: DL_DIR, signal: ac.signal, electron: require('electron'),
+      onDuplicate: opts && opts.confirmDup ? askDuplicate(sender, linkJob) : null,
       onProgress: (p) => { if (!sender.isDestroyed()) sender.send('link:progress', p); },
     });
     allowRoot(DL_DIR);
@@ -513,7 +521,7 @@ ipcMain.handle('link:start', async (e, url) => {
   } finally { linkJob = null; }
 });
 // ---- Abrir link, modo "Download em lote": lista de links ou sequência (a interface só manda a especificação; aqui tudo é conferido de novo)
-ipcMain.handle('link:startBatch', async (e, spec) => {
+ipcMain.handle('link:startBatch', async (e, spec, opts) => {
   if (linkJob) return { ok: false, code: 'busy' };
   const r0 = YSeq.resolveSpec(spec && typeof spec === 'object' ? spec : null);
   if (!r0.ok) return { ok: false, code: r0.error === 'empty' ? 'empty' : r0.error === 'tooMany' ? 'tooMany' : r0.error === 'badUrl' ? 'badUrl' : 'badSpec', detail: r0.error === 'tooMany' ? `${r0.count} / ${YSeq.BATCH.maxLinks}` : r0.detail || r0.error || '' };
@@ -525,6 +533,7 @@ ipcMain.handle('link:startBatch', async (e, spec) => {
     const name = typeof spec.name === 'string' ? spec.name.trim().slice(0, 120) : '';
     const r = await linkfetch.downloadBatch(r0.urls, {
       destRoot: DL_DIR, signal: ac.signal, electron: require('electron'), name: name || t('link.batch.defaultName', { host }),
+      onDuplicate: opts && opts.confirmDup ? askDuplicate(sender, linkJob) : null,
       onProgress: (p) => { if (!sender.isDestroyed()) sender.send('link:progress', p); },
     });
     allowRoot(DL_DIR);
@@ -534,10 +543,10 @@ ipcMain.handle('link:startBatch', async (e, spec) => {
     return { ok: false, code: 'other', detail: String((err && err.message) || err).slice(0, 200) };
   } finally { linkJob = null; }
 });
-ipcMain.handle('link:cancel', () => { if (linkJob) { linkJob.ac.abort(); return true; } return false; });
+ipcMain.handle('link:cancel', () => { if (linkJob) { linkJob.ac.abort(); if (linkJob.dupResolve) { const r = linkJob.dupResolve; linkJob.dupResolve = null; r(false); } return true; } return false; });
 ipcMain.handle('link:cacheInfo', async () => {
   const dl = await scanDownloads();
-  return { count: dl ? dl.volumes.length : 0, bytes: dl ? await dirSize(DL_DIR) : 0 };
+  return { count: dl ? dl.volumes.length : 0, bytes: dl ? await dirSize(DL_DIR) : 0, exists: safeIsDir(DL_DIR) };
 });
 ipcMain.handle('link:delete', async (e, folder) => {
   if (typeof folder !== 'string' || !underDl(folder)) return false;

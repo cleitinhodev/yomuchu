@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "साइट ने रोका ({detail})",
  "link.batch.r.noImage": "पेज की कोई इमेज नहीं मिली",
  "link.batch.r.network": "नेटवर्क विफल ({detail})",
- "link.batch.r.other": "विफल ({detail})"
+ "link.batch.r.other": "विफल ({detail})",
+ "link.dup.title": "अध्याय पहले से मौजूद है",
+ "link.dup.text": "“{name}” नाम का अध्याय पहले से मौजूद है। हो सकता है आप यह मंगा पहले ही डाउनलोड कर चुके हों। क्या इसे कॉपी के रूप में फिर से डाउनलोड करें?",
+ "link.dup.yes": "फिर भी डाउनलोड करें"
 }

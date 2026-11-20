@@ -19,8 +19,10 @@ contextBridge.exposeInMainWorld('mangaAPI', {
   testOpenedDirs: () => ipcRenderer.invoke('test:openedDirs'),
   testOpenedLinks: () => ipcRenderer.invoke('test:openedLinks'),
   // abrir link
-  startLink: (url) => ipcRenderer.invoke('link:start', url),
-  startBatch: (spec) => ipcRenderer.invoke('link:startBatch', spec),
+  startLink: (url, opts) => ipcRenderer.invoke('link:start', url, opts),
+  startBatch: (spec, opts) => ipcRenderer.invoke('link:startBatch', spec, opts),
+  answerDuplicate: (yes) => ipcRenderer.invoke('link:dupAnswer', !!yes),
+  onLinkDuplicate: on('link:duplicate'),
   cancelLink: () => ipcRenderer.invoke('link:cancel'),
   linkCacheInfo: () => ipcRenderer.invoke('link:cacheInfo'),
   deleteDownload: (folder) => ipcRenderer.invoke('link:delete', folder),

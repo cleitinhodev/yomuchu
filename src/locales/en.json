@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "blocked by the site ({detail})",
  "link.batch.r.noImage": "no page image found",
  "link.batch.r.network": "network failure ({detail})",
- "link.batch.r.other": "failed ({detail})"
+ "link.batch.r.other": "failed ({detail})",
+ "link.dup.title": "Chapter already exists",
+ "link.dup.text": "A chapter named “{name}” already exists. You may have already downloaded this manga. Download it again as a copy?",
+ "link.dup.yes": "Download anyway"
 }

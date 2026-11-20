@@ -384,6 +384,19 @@ async function renderPage(url, { signal, electron, onStatus }) {
   }
 }
 
+
+// ============================================================== nome da pasta do capítulo (aviso de repetido e cópias "Nome (1)", "Nome (2)"…)
+/** primeiro nome livre: "Nome" se ainda não existe; senão "Nome (1)", "Nome (2)"… (como o Windows) */
+function freeSlug(destRoot, title) {
+  if (!fs.existsSync(path.join(destRoot, title))) return title;
+  for (let n = 1; ; n++) { const s = `${title} (${n})`; if (!fs.existsSync(path.join(destRoot, s))) return s; }
+}
+/** se já existe uma pasta com esse nome, pergunta (opts.onDuplicate) antes de baixar; recusar cancela o download */
+async function checkDuplicate(destRoot, title, opts) {
+  if (!fs.existsSync(path.join(destRoot, title))) return;
+  if (opts.onDuplicate && !(await opts.onDuplicate(title))) throw new LinkError('cancelled');
+}
+
 // ============================================================== download do capítulo
 function extFor(type) { return type === 'png' ? '.png' : type === 'webp' ? '.webp' : type === 'gif' ? '.gif' : '.jpg'; }
 async function rmrf(p) { try { await fsp.rm(p, { recursive: true, force: true }); } catch { /* */ } }
@@ -481,6 +494,10 @@ async function downloadChapter(rawUrl, opts) {
   if (chosen.length > LIMITS.maxPages) { chosen = chosen.slice(0, LIMITS.maxPages); truncated = true; }
   stats.kept = chosen.length;
 
+  // ---- já existe um capítulo com este nome? (avisa antes de baixar)
+  await checkDuplicate(destRoot, title, opts);
+  if (signal && signal.aborted) throw new LinkError('cancelled');
+
   // ---- download
   await fsp.mkdir(destRoot, { recursive: true });
   const tmp = path.join(destRoot, '.tmp-' + crypto.randomBytes(5).toString('hex'));
@@ -509,15 +526,8 @@ async function downloadChapter(rawUrl, opts) {
     finalList.forEach((r, i) => { r.name = String(i + 1).padStart(width, '0') + extFor(r.type); });
     for (const r of finalList) await fsp.rename(r.file, path.join(tmp, r.name));
     await fsp.writeFile(path.join(tmp, '.yomuchu-link.json'), JSON.stringify({ url, title, date: Date.now(), pages: finalList.length, usedRender, cluster }, null, 1));
-    // pasta final: substitui um download anterior do mesmo link; nomes repetidos ganham " (2)"
-    let slug = title, n = 2;
-    const metaUrl = async (d) => { try { return JSON.parse(await fsp.readFile(path.join(d, '.yomuchu-link.json'), 'utf8')).url; } catch { return null; } };
-    for (;;) {
-      const dest = path.join(destRoot, slug);
-      if (!fs.existsSync(dest)) break;
-      if ((await metaUrl(dest)) === url) { await rmrf(dest); break; }
-      slug = `${title} (${n++})`;
-    }
+    // pasta final: nome livre ("Nome", "Nome (1)", "Nome (2)"…)
+    const slug = freeSlug(destRoot, title);
     const folder = path.join(destRoot, slug);
     await fsp.rename(tmp, folder);
     return { folder, title: slug, pages: finalList.length, failed, truncated, usedRender, stats: { ...stats, dupHash: ok.length - finalList.length }, cluster };
@@ -575,7 +585,11 @@ async function downloadBatch(rawUrls, opts) {
   if (opts.signal) { if (opts.signal.aborted) ac.abort(); else opts.signal.addEventListener('abort', () => ac.abort(), { once: true }); }
   const signal = ac.signal;
   const progress = (done, failed) => { if (opts.onProgress) opts.onProgress({ phase: 'batch', done, total, failed, pct: 2 + 96 * done / total }); };
+  let host = 'link'; try { host = new URL(urls[0]).hostname.replace(/^www\./, ''); } catch { /* */ }
+  const title = sanitizeName(opts.name, sanitizeName(host + ' (lote)'));
   progress(0, 0);
+  await checkDuplicate(destRoot, title, opts);   // avisa antes de visitar qualquer link
+  if (signal.aborted) throw new LinkError('cancelled');
   await fsp.mkdir(destRoot, { recursive: true });
   const tmp = path.join(destRoot, '.tmp-' + crypto.randomBytes(5).toString('hex'));
   await fsp.mkdir(tmp, { recursive: true });
@@ -645,19 +659,10 @@ async function downloadBatch(rawUrls, opts) {
     const width = Math.max(3, String(finalList.length).length);
     finalList.forEach((r, i) => { r.name = String(i + 1).padStart(width, '0') + extFor(r.type); });
     for (const r of finalList) await fsp.rename(r.file, path.join(tmp, r.name));
-    let host = 'link'; try { host = new URL(urls[0]).hostname.replace(/^www\./, ''); } catch { /* */ }
-    const title = sanitizeName(opts.name, sanitizeName(host + ' (lote)'));
     const key = crypto.createHash('sha1').update(urls.join('\n')).digest('hex');
     await fsp.writeFile(path.join(tmp, '.yomuchu-link.json'), JSON.stringify({ url: urls[0], title, date: Date.now(), pages: finalList.length, batch: true, links: total, failed: failures.length, key }, null, 1));
-    // pasta final: refazer o mesmo lote substitui a pasta anterior; nomes repetidos ganham " (2)"
-    let slug = title, n = 2;
-    const metaKey = async (d) => { try { return JSON.parse(await fsp.readFile(path.join(d, '.yomuchu-link.json'), 'utf8')).key; } catch { return null; } };
-    for (;;) {
-      const dest = path.join(destRoot, slug);
-      if (!fs.existsSync(dest)) break;
-      if ((await metaKey(dest)) === key) { await rmrf(dest); break; }
-      slug = `${title} (${n++})`;
-    }
+    // pasta final: nome livre ("Nome", "Nome (1)", "Nome (2)"…)
+    const slug = freeSlug(destRoot, title);
     const folder = path.join(destRoot, slug);
     await fsp.rename(tmp, folder);
     return { folder, title: slug, pages: finalList.length, failed: failures.length, failures, dupes: dupUrl + dupHash, total };
@@ -669,4 +674,4 @@ async function downloadBatch(rawUrls, opts) {
   }
 }
 
-module.exports = { PROFILE, LIMITS, PAGE_TYPES, USER_AGENT, LinkError, downloadChapter, downloadBatch, pickLargest, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };
+module.exports = { PROFILE, LIMITS, PAGE_TYPES, USER_AGENT, LinkError, downloadChapter, downloadBatch, freeSlug, pickLargest, extractCandidates, filterByProfile, parseImageSize, sniffType, sanitizeName, normalizeInput, isHttpUrl, pageTitle };

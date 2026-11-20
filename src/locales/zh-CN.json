@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "被网站拦截（{detail}）",
  "link.batch.r.noImage": "未找到页面图片",
  "link.batch.r.network": "网络故障（{detail}）",
- "link.batch.r.other": "失败（{detail}）"
+ "link.batch.r.other": "失败（{detail}）",
+ "link.dup.title": "章节已存在",
+ "link.dup.text": "已存在名为“{name}”的章节。你可能已经下载过这部漫画。要作为副本再次下载吗？",
+ "link.dup.yes": "仍然下载"
 }

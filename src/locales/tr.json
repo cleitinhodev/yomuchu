@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "site tarafından engellendi ({detail})",
  "link.batch.r.noImage": "sayfa görseli bulunamadı",
  "link.batch.r.network": "ağ hatası ({detail})",
- "link.batch.r.other": "başarısız ({detail})"
+ "link.batch.r.other": "başarısız ({detail})",
+ "link.dup.title": "Bölüm zaten var",
+ "link.dup.text": "“{name}” adlı bir bölüm zaten var. Bu mangayı daha önce indirmiş olabilirsiniz. Kopya olarak tekrar indirilsin mi?",
+ "link.dup.yes": "Yine de indir"
 }

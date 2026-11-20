@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "заблокировано сайтом ({detail})",
  "link.batch.r.noImage": "изображение страницы не найдено",
  "link.batch.r.network": "сбой сети ({detail})",
- "link.batch.r.other": "ошибка ({detail})"
+ "link.batch.r.other": "ошибка ({detail})",
+ "link.dup.title": "Глава уже существует",
+ "link.dup.text": "Глава с названием «{name}» уже существует. Возможно, вы уже скачивали эту мангу. Скачать ещё раз как копию?",
+ "link.dup.yes": "Всё равно скачать"
 }

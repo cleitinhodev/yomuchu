@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "사이트에서 차단됨 ({detail})",
  "link.batch.r.noImage": "페이지 이미지를 찾지 못함",
  "link.batch.r.network": "네트워크 오류 ({detail})",
- "link.batch.r.other": "실패 ({detail})"
+ "link.batch.r.other": "실패 ({detail})",
+ "link.dup.title": "이미 있는 챕터입니다",
+ "link.dup.text": "“{name}” 챕터가 이미 있습니다. 이 만화를 이미 내려받았을 수 있습니다. 복사본으로 다시 내려받을까요?",
+ "link.dup.yes": "그래도 다운로드"
 }

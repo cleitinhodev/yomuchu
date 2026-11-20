@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "geblokkeerd door de site ({detail})",
  "link.batch.r.noImage": "geen paginaafbeelding gevonden",
  "link.batch.r.network": "netwerkfout ({detail})",
- "link.batch.r.other": "mislukt ({detail})"
+ "link.batch.r.other": "mislukt ({detail})",
+ "link.dup.title": "Hoofdstuk bestaat al",
+ "link.dup.text": "Er bestaat al een hoofdstuk met de naam “{name}”. Misschien heb je deze manga al gedownload. Opnieuw downloaden als kopie?",
+ "link.dup.yes": "Toch downloaden"
 }

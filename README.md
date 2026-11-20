@@ -144,7 +144,7 @@ Logo abaixo ficam os "papéis" de cada tema (`--bg`, `--panel`, `--text`, `--mut
 
 ## Novidades da versão 0.3.1
 
-- **Abrir pasta**: quando um download de "Abrir link" termina, o diálogo continua aberto com a mensagem de sucesso e o botão **Abrir pasta**, que mostra no gerenciador de arquivos a pasta do capítulo recém-baixado. Há também um **Abrir pasta** ao lado de "Apagar baixados" nas Configurações e dentro da série "Baixados de links", que abre a pasta `baixados` (dentro dos dados do app; ela é criada se ainda não existir).
+- **Abrir pasta**: quando um download de "Abrir link" termina, o diálogo continua aberto com a mensagem de sucesso e o botão **Baixar e abrir** não muda (dá para baixar outro em seguida, no link único ou em lote). O botão de **pasta** (ícone, sempre à esquerda; à direita no árabe) mostra no gerenciador de arquivos a pasta do último capítulo baixado; sem download na sessão abre a pasta "Baixados de links" se ela existir, senão fica desativado. Se já existir uma pasta com o mesmo nome o app avisa ("Você pode já ter baixado este mangá") e, se você confirmar, cria uma cópia "Nome (1)", "Nome (2)"… como o Windows. Há também um **Abrir pasta** ao lado de "Apagar baixados" nas Configurações e dentro da série "Baixados de links", que abre a pasta `baixados` (dentro dos dados do app; ela é criada se ainda não existir).
 - Segurança: o processo principal só abre caminhos que, depois de resolvidos (inclusive atalhos simbólicos), ficam *dentro* da pasta `baixados`; qualquer outro caminho é recusado.
 - Nos testes (`YOMUCHU_TEST_LINKS=1`) nenhuma janela do sistema é aberta: o caminho que seria aberto é só registrado.
 

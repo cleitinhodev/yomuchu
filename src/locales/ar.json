@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "حجبه الموقع ({detail})",
  "link.batch.r.noImage": "لم يتم العثور على صورة للصفحة",
  "link.batch.r.network": "فشل في الشبكة ({detail})",
- "link.batch.r.other": "فشل ({detail})"
+ "link.batch.r.other": "فشل ({detail})",
+ "link.dup.title": "الفصل موجود بالفعل",
+ "link.dup.text": "يوجد فصل بالاسم «{name}» بالفعل. ربما نزّلت هذه المانغا من قبل. هل تريد تنزيلها مرة أخرى كنسخة؟",
+ "link.dup.yes": "نزّل على أي حال"
 }

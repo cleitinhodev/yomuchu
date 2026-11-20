@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "bloqué par le site ({detail})",
  "link.batch.r.noImage": "aucune image de page trouvée",
  "link.batch.r.network": "échec réseau ({detail})",
- "link.batch.r.other": "échec ({detail})"
+ "link.batch.r.other": "échec ({detail})",
+ "link.dup.title": "Le chapitre existe déjà",
+ "link.dup.text": "Un chapitre nommé « {name} » existe déjà. Vous avez peut-être déjà téléchargé ce manga. Le télécharger à nouveau en tant que copie ?",
+ "link.dup.yes": "Télécharger quand même"
 }

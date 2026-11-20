@@ -692,16 +692,16 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
       const openedDirs = () => lib.evaluate(() => window.mangaAPI.testOpenedDirs());
       const realDL = fs.realpathSync(DL);
       await lib.bringToFront().catch(() => {});
-      const done = await lib.evaluate(() => ({ vis: !document.querySelector('#linkDlg').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').classList.contains('hidden'), openTxt: document.querySelector('#linkOpenDir').textContent, go: !document.querySelector('#linkGo').classList.contains('hidden'), msg: document.querySelector('#linkMsg').textContent, close: document.querySelector('#linkClose').textContent }));
+      const done = await lib.evaluate(() => ({ vis: !document.querySelector('#linkDlg').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').disabled, tip: document.querySelector('#linkOpenDir').title, go: !document.querySelector('#linkGo').classList.contains('hidden'), goTxt: document.querySelector('#linkGo').textContent, msg: document.querySelector('#linkMsg').textContent, close: document.querySelector('#linkClose').textContent }));
       await lib.screenshot({ path: path.join(SHOTS, 'link-pasta.png') });
-      ok('Abrir pasta: ao terminar o download o diálogo mostra "Abrir pasta" no estado concluído (e some o "Baixar e abrir")', done.vis && done.open && done.openTxt === 'Abrir pasta' && !done.go && /10 páginas baixadas/.test(done.msg) && done.close === 'Fechar', JSON.stringify(done));
+      ok('Abrir pasta: ao terminar o download o botão de pasta (ícone, dica "Abrir pasta") fica ativo e "Baixar e abrir" continua o mesmo', done.vis && done.open && done.tip === 'Abrir pasta' && done.go && done.goTxt === 'Baixar e abrir' && /10 páginas baixadas/.test(done.msg) && done.close === 'Fechar', JSON.stringify(done));
       const before = (await openedDirs()).length;
       await lib.click('#linkOpenDir'); await sleep(300);
       const od = await openedDirs();
       const last = od[od.length - 1];
       ok('Abrir pasta (diálogo): abre a pasta do capítulo que acabou de ser baixado, dentro de "baixados"', od.length === before + 1 && last.mode === 'chapter' && last.path.startsWith(realDL + path.sep) && /Lento/.test(last.path) && fs.statSync(last.path).isDirectory(), JSON.stringify(last));
       await lib.keyboard.press('Escape'); await sleep(200);
-      ok('Abrir pasta: Esc fecha o diálogo concluído e, ao reabrir, ele volta ao estado normal', await lib.evaluate(() => { const hid = document.querySelector('#linkDlg').classList.contains('hidden'); openLinkDlg(); const r = { hid, go: !document.querySelector('#linkGo').classList.contains('hidden'), open: document.querySelector('#linkOpenDir').classList.contains('hidden'), msg: document.querySelector('#linkMsg').classList.contains('hidden'), close: document.querySelector('#linkClose').textContent }; linkClose(); return r.hid && r.go && r.open && r.msg && r.close === 'Cancelar'; }));
+      ok('Abrir pasta: Esc fecha o diálogo concluído e, ao reabrir, ele volta ao normal (o botão de pasta continua apontando o último capítulo)', await lib.evaluate(() => { const hid = document.querySelector('#linkDlg').classList.contains('hidden'); openLinkDlg(); const r = { hid, go: !document.querySelector('#linkGo').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').disabled, msg: document.querySelector('#linkMsg').classList.contains('hidden'), close: document.querySelector('#linkClose').textContent }; linkClose(); return r.hid && r.go && r.open && r.msg && r.close === 'Cancelar'; }));
       // configurações: ao lado de "Apagar baixados"
       await lib.click('#btnSettings'); await sleep(250);
       const adj = await lib.evaluate(() => { const a = document.querySelector('#btnOpenDl'), b = document.querySelector('#btnClearLinks'); return { same: a.parentElement === b.parentElement, vis: a.offsetWidth > 0, txt: a.textContent }; });
@@ -732,6 +732,9 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     await lib.bringToFront().catch(() => {});
     await lib.click('#btnOpenLink'); await sleep(200);
     await lib.fill('#linkUrl', HOST + '/cap/slow'); await lib.click('#linkGo');
+    // "Capítulo Lento" já foi baixado antes: o app avisa do duplicado; confirmamos para seguir (cópia "(n)")
+    await lib.waitForFunction(() => !document.querySelector('#confirm').classList.contains('hidden') || document.querySelector('#linkBar').dataset.phase === 'download', null, { timeout: 30000 });
+    if (await lib.isVisible('#confirm')) await lib.click('#confirmYes');
     await lib.waitForFunction(() => document.querySelector('#linkBar').dataset.phase === 'download', null, { timeout: 30000 });
     const busy = await lib.evaluate(() => window.mangaAPI.startLink('http://127.0.0.1:9/'));
     ok('Link: um segundo download simultâneo é recusado (busy)', busy.ok === false && busy.code === 'busy');
@@ -777,6 +780,7 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
         if (pn === '/abc/aa') return pageOf('p6.jpg');
         if ((m = /^\/ABC\/([A-C])$/.exec(pn))) return pageOf(imgs['ABC'.indexOf(m[1])]);
         if ((m = /^\/fail\/([1-6])$/.exec(pn))) { const n = +m[1]; return n === 2 ? { status: 403, html: 'negado' } : n === 3 ? pageOf(null) : n === 5 ? null : pageOf(imgs[n - 1]); }
+        if (pn === '/chap/1') return { html: `<html><head><title>Cap Dup</title></head><body>${decoy}<main><img src="/img/p1.jpg"><img src="/img/p2.jpg"><img src="/img/p3.jpg"><img src="/img/p4.jpg"></main></body></html>` };
         if (pn === '/gif/1') return pageOf('anim.gif');
         if (pn === '/spread/1') return pageOf('spread.jpg');
         if ((m = /^\/dup\/([1-5])$/.exec(pn))) return pageOf('p1.jpg');
@@ -874,7 +878,7 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
       ok('Lote: iscas (logo, botões, avatar, banner, miniaturas, capa relacionada) só têm o cabeçalho lido; só as 10 páginas são baixadas inteiras', full1.length === 10 && full1.every((e) => /^\/img\/p\d+\.jpg$/.test(e.path)) && reqs1.filter((e) => e.range).length >= 70, `${full1.length} completas, ${reqs1.filter((e) => e.range).length} com Range`);
       ok('Lote: Referer de cada imagem é a página do link; User-Agent educado', full1.every((e, i) => /^http:\/\/127\.0\.0\.1:\d+\/num\/\d+$/.test(e.referer)) && reqs1.every((e) => /Yomuchu/.test(e.ua)));
       const r1b = await B(seqSpec('/num/{n}'));
-      ok('Lote: refazer o mesmo lote substitui a pasta anterior (sem "(2)")', r1b.ok && r1b.folder === r1.folder && fs.readdirSync(DL).filter((d) => d.startsWith('Lote de')).length === 1, r1b.title);
+      ok('Lote: refazer o mesmo lote (sem interface) vira uma cópia "Lote de 127.0.0.1 (1)" e a pasta original continua', r1b.ok && r1b.title === 'Lote de 127.0.0.1 (1)' && r1b.folder !== r1.folder && fs.existsSync(r1.folder) && fs.readdirSync(DL).filter((d) => d.startsWith('Lote de')).length === 2, r1b.title);
       const r1c = await B(seqSpec('/num/{n}', { name: 'Meu Lote: Cap/1', end: '3' }));
       ok('Lote: nome do capítulo opcional é usado (saneado) como nome da pasta', r1c.ok && r1c.title === 'Meu Lote Cap 1' && files(r1c.folder).length === 3, r1c.title);
       // zeros à esquerda
@@ -924,9 +928,9 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
       await lib.click('#linkGo');
       await rd.waitForFunction((d) => (window.__reader.folder || '').endsWith('Pela interface'), null, { timeout: 60000 });
       await sleep(600);
-      const ui = await lib.evaluate(() => ({ msg: document.querySelector('#linkMsg').textContent, fails: [...document.querySelectorAll('#linkFailsList li')].map((l) => l.textContent), failsVis: !document.querySelector('#linkFails').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').classList.contains('hidden'), go: document.querySelector('#linkGo').classList.contains('hidden') }));
+      const ui = await lib.evaluate(() => ({ msg: document.querySelector('#linkMsg').textContent, fails: [...document.querySelectorAll('#linkFailsList li')].map((l) => l.textContent), failsVis: !document.querySelector('#linkFails').classList.contains('hidden'), open: !document.querySelector('#linkOpenDir').disabled, go: !document.querySelector('#linkGo').classList.contains('hidden') }));
       await lib.screenshot({ path: path.join(SHOTS, 'link-lote-resumo.png') });
-      ok('Lote (interface): termina com "3 páginas baixadas (3 falharam)", lista cada link que falhou com o motivo e mostra "Abrir pasta"', /3 páginas baixadas \(3 falharam\)/.test(ui.msg) && ui.failsVis && ui.fails.length === 3 && /#2 .*\/fail\/2 — bloqueado pelo site \(HTTP 403\)/.test(ui.fails[0]) && /#3 .*nenhuma imagem de página/.test(ui.fails[1]) && /#5 .*erro do site \(HTTP 404\)/.test(ui.fails[2]) && ui.open && ui.go, JSON.stringify(ui));
+      ok('Lote (interface): termina com "3 páginas baixadas (3 falharam)", lista cada link que falhou com o motivo e deixa o botão de pasta ativo e "Baixar lote" disponível', /3 páginas baixadas \(3 falharam\)/.test(ui.msg) && ui.failsVis && ui.fails.length === 3 && /#2 .*\/fail\/2 — bloqueado pelo site \(HTTP 403\)/.test(ui.fails[0]) && /#3 .*nenhuma imagem de página/.test(ui.fails[1]) && /#5 .*erro do site \(HTTP 404\)/.test(ui.fails[2]) && ui.open && ui.go, JSON.stringify(ui));
       const rdst = await rstate(rd);
       ok('Lote (interface): o capítulo do lote abre no leitor com as 3 páginas', rdst.n === 3 && rdst.folder.endsWith('Pela interface'), JSON.stringify(rdst));
       await lib.keyboard.press('Escape'); await sleep(200);
@@ -940,7 +944,7 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
       await lib.click('#confirmNo'); await sleep(300);
       ok('Lote (interface): mais de 100 links pede confirmação ("Lote grande … 150 endereços") e "Não" não visita nenhum site', cf.vis && cf.t === 'Lote grande' && /150 endereços/.test(cf.x) && blog.length === nBig && !(await lib.isVisible('#linkProg')), JSON.stringify(cf));
       // cancelar um lote em andamento
-      await lib.fill('#seqPattern', BH + '/slow/{n}'); await lib.fill('#seqEnd', '12'); await sleep(150);
+      await lib.fill('#seqPattern', BH + '/slow/{n}'); await lib.fill('#seqEnd', '12'); await lib.fill('#batchName', 'Lote lento'); await sleep(150);
       const slow0 = blog.filter((e) => e.page && e.path.startsWith('/slow/')).length;
       await lib.click('#linkGo');
       await lib.waitForFunction(() => /^Baixando o lote \(\d+\/12\)/.test(document.querySelector('#linkStatus').textContent) && +document.querySelector('#linkBar').getAttribute('aria-valuenow') > 2, null, { timeout: 30000 });
@@ -957,18 +961,104 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
       ok('Lote: depois de cancelar um novo lote funciona (sem travar em "busy")', again.ok && again.pages === 2);
       await lib.keyboard.press('Escape'); await sleep(200);
 
+      // ---- 0.5.1-teste: "Baixar e abrir" nunca muda, botão de pasta à esquerda, aviso de capítulo repetido e cópias (1), (2)
+      {
+        const openedDirs2 = () => lib.evaluate(() => window.mangaAPI.testOpenedDirs());
+        const waitReader = async (end) => { await rd.waitForFunction((n) => (window.__reader.folder || '').endsWith(n), end, { timeout: 60000 }); await sleep(500); await lib.bringToFront().catch(() => {}); };
+        const dlgState = () => lib.evaluate(() => ({ goVis: !document.querySelector('#linkGo').classList.contains('hidden'), goTxt: document.querySelector('#linkGo').textContent, goOff: document.querySelector('#linkGo').disabled, folderOff: document.querySelector('#linkOpenDir').disabled, busy: link.busy, prog: !document.querySelector('#linkProg').classList.contains('hidden'), msg: document.querySelector('#linkMsg').textContent, fails: !document.querySelector('#linkFails').classList.contains('hidden') }));
+        const dirsNamed = (base) => fs.readdirSync(DL).filter((d) => d === base || d.startsWith(base + ' (')).sort();
+        await lib.bringToFront().catch(() => {});
+        await lib.evaluate(() => { link.lastFolder = null; });
+        await lib.click('#btnOpenLink'); await sleep(300);
+        if (await lib.evaluate(() => link.tab !== 'single')) await lib.click('#linkTabSingle');
+        // 1) link único + lote seguidos, sem fechar o diálogo
+        await lib.fill('#linkUrl', BH + '/chap/1'); await lib.click('#linkGo');
+        await waitReader('Cap Dup'); await lib.waitForFunction(() => !link.busy);
+        const s1 = await dlgState();
+        ok('Download seguido (link único): terminou, "Baixar e abrir" continua igual e ativo, progresso some e o botão de pasta ficou ativo', s1.goVis && s1.goTxt === 'Baixar e abrir' && !s1.goOff && !s1.folderOff && !s1.busy && !s1.prog && /4 páginas baixadas/.test(s1.msg), JSON.stringify(s1));
+        await lib.click('#linkTabBatch'); await sleep(150); await lib.click('#batchModeSeq');
+        await lib.fill('#seqPattern', BH + '/num/{n}'); await lib.fill('#seqStart', '1'); await lib.fill('#seqEnd', '3'); await lib.fill('#batchName', 'Seguido A'); await sleep(150);
+        const s1b = await dlgState();
+        ok('Download seguido: ao trocar para a aba do lote o botão é "Baixar lote e abrir" (nunca vira "Abrir pasta") e a mensagem anterior some', s1b.goVis && s1b.goTxt === 'Baixar lote e abrir' && !s1b.prog && s1b.msg === '', JSON.stringify(s1b));
+        await lib.click('#linkGo'); await waitReader('Seguido A'); await lib.waitForFunction(() => !link.busy);
+        const s2 = await dlgState();
+        ok('Download seguido (lote logo após o link único, sem reabrir o diálogo): funciona e o botão continua "Baixar lote e abrir"', s2.goVis && s2.goTxt === 'Baixar lote e abrir' && !s2.goOff && /3 páginas baixadas/.test(s2.msg) && fs.existsSync(path.join(DL, 'Seguido A')) && files(path.join(DL, 'Seguido A')).length === 3, JSON.stringify(s2));
+        await lib.fill('#batchName', 'Seguido B'); await lib.click('#linkGo'); await waitReader('Seguido B'); await lib.waitForFunction(() => !link.busy);
+        const s3 = await dlgState();
+        ok('Download seguido: um terceiro download em lote também funciona (estado e barra reiniciados a cada rodada)', s3.goVis && !s3.busy && !s3.prog && /3 páginas baixadas/.test(s3.msg) && fs.existsSync(path.join(DL, 'Seguido B')), JSON.stringify(s3));
+        // 2) botão de pasta: esquerda (direita no árabe), ícone, abre o capítulo mais recente
+        const geo = () => lib.evaluate(() => { const r = (id) => document.querySelector(id).getBoundingClientRect(); const f = r('#linkOpenDir'), c = r('#linkClose'), g = r('#linkGo'); return { f: f.left, fw: f.width, c: c.left, g: g.left, fr: f.right, cr: c.right, gr: g.right, svg: !!document.querySelector('#linkOpenDir svg'), txt: document.querySelector('#linkOpenDir').textContent.trim(), tip: document.querySelector('#linkOpenDir').title }; });
+        const g1 = await geo();
+        ok('Botão de pasta: pequeno, só com ícone, dica "Abrir pasta", à esquerda de Cancelar e do botão de baixar', g1.svg && g1.txt === '' && g1.tip === 'Abrir pasta' && g1.fw < 50 && g1.f < g1.c && g1.f < g1.g, JSON.stringify(g1));
+        const nd0 = (await openedDirs2()).length;
+        await lib.click('#linkOpenDir'); await sleep(300);
+        const od1 = await openedDirs2(), l1 = od1[od1.length - 1];
+        ok('Botão de pasta: abre a pasta do último capítulo baixado ("Seguido B")', od1.length === nd0 + 1 && l1.mode === 'chapter' && l1.path.endsWith('Seguido B'), JSON.stringify(l1));
+        await lib.evaluate(() => { link.lastFolder = null; });
+        await lib.click('#linkOpenDir'); await sleep(300);
+        const od2 = await openedDirs2(), l2 = od2[od2.length - 1];
+        ok('Botão de pasta: sem capítulo na sessão abre a pasta "Baixados de links" (baixados)', l2.mode === 'dir' && l2.path === fs.realpathSync(DL), JSON.stringify(l2));
+        await lib.evaluate(() => window.mangaAPI.setLanguage('ar')); await sleep(400);
+        const g2 = await geo();
+        ok('Botão de pasta (árabe, direita para esquerda): o botão espelha e fica no canto direito, com a dica traduzida', g2.fr > g2.cr && g2.fr > g2.gr && g2.tip === 'فتح المجلد', JSON.stringify(g2));
+        await lib.evaluate(() => window.mangaAPI.setLanguage(null)); await sleep(400);
+        // 3) capítulo repetido: aviso, cancelar, confirmar, (1), (2), primeiro número livre
+        await lib.click('#linkTabSingle'); await sleep(150);
+        await lib.fill('#linkUrl', BH + '/chap/1'); await lib.click('#linkGo');
+        await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 });
+        const dup = await lib.evaluate(() => ({ t: document.querySelector('#confirmTitle').textContent, x: document.querySelector('#confirmText').textContent, yes: document.querySelector('#confirmYes').textContent, no: document.querySelector('#confirmNo').textContent, danger: document.querySelector('#confirmYes').classList.contains('danger') }));
+        await lib.screenshot({ path: path.join(SHOTS, 'link-duplicado.png') });
+        ok('Duplicado: com a pasta "Cap Dup" já existente o app avisa antes de baixar, com "Cancelar" e "Baixar mesmo assim"', dup.t === 'Capítulo já existe' && /“Cap Dup”/.test(dup.x) && /Você pode já ter baixado este mangá/.test(dup.x) && /baixar novamente como uma cópia/.test(dup.x) && dup.yes === 'Baixar mesmo assim' && dup.no === 'Cancelar' && !dup.danger, JSON.stringify(dup));
+        await lib.click('#confirmNo');
+        await lib.waitForFunction(() => !link.busy && /cancelado/.test(document.querySelector('#linkMsg').textContent), null, { timeout: 15000 });
+        const sc = await dlgState();
+        ok('Duplicado: "Cancelar" não baixa nada, não cria "Cap Dup (1)", não deixa pasta temporária e o botão de baixar segue disponível', dirsNamed('Cap Dup').join() === 'Cap Dup' && dlDirs().every((d) => !d.startsWith('.tmp-')) && sc.goVis && !sc.goOff && !sc.busy, JSON.stringify([dirsNamed('Cap Dup'), sc]));
+        await lib.click('#linkGo'); await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 }); await lib.click('#confirmYes');
+        await waitReader('Cap Dup (1)'); await lib.waitForFunction(() => !link.busy);
+        ok('Duplicado: confirmar cria "Cap Dup (1)" (como o Windows) com as 4 páginas e mantém a original', dirsNamed('Cap Dup').join() === 'Cap Dup,Cap Dup (1)' && files(path.join(DL, 'Cap Dup (1)')).length === 4 && /4 páginas baixadas/.test((await dlgState()).msg), dirsNamed('Cap Dup').join());
+        await lib.click('#linkGo'); await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 }); await lib.click('#confirmYes');
+        await waitReader('Cap Dup (2)'); await lib.waitForFunction(() => !link.busy);
+        ok('Duplicado: de novo cria "Cap Dup (2)"', dirsNamed('Cap Dup').join() === 'Cap Dup,Cap Dup (1),Cap Dup (2)', dirsNamed('Cap Dup').join());
+        fs.rmSync(path.join(DL, 'Cap Dup (1)'), { recursive: true, force: true });
+        await lib.click('#linkGo'); await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 }); await lib.click('#confirmYes');
+        await waitReader('Cap Dup (1)'); await lib.waitForFunction(() => !link.busy);
+        ok('Duplicado: usa o primeiro número livre (apagado o "(1)", o próximo é "(1)" de novo; existiam original e "(2)")', dirsNamed('Cap Dup').join() === 'Cap Dup,Cap Dup (1),Cap Dup (2)', dirsNamed('Cap Dup').join());
+        // lote: mesmo nome
+        await lib.click('#linkTabBatch'); await sleep(150);
+        await lib.fill('#batchName', 'Seguido A'); await lib.click('#linkGo');
+        await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 });
+        const dupB = await lib.evaluate(() => ({ t: document.querySelector('#confirmTitle').textContent, x: document.querySelector('#confirmText').textContent }));
+        const reqBefore = blog.length;
+        await lib.click('#confirmNo');
+        await lib.waitForFunction(() => !link.busy && /cancelado/.test(document.querySelector('#linkMsg').textContent), null, { timeout: 15000 });
+        ok('Duplicado (lote): avisa antes de visitar qualquer link; "Cancelar" não faz nenhum pedido ao site', dupB.t === 'Capítulo já existe' && /“Seguido A”/.test(dupB.x) && blog.length === reqBefore && dirsNamed('Seguido A').join() === 'Seguido A', JSON.stringify(dupB));
+        await lib.click('#linkGo'); await lib.waitForSelector('#confirm:not(.hidden)', { timeout: 30000 }); await lib.click('#confirmYes');
+        await waitReader('Seguido A (1)'); await lib.waitForFunction(() => !link.busy);
+        ok('Duplicado (lote): confirmar cria "Seguido A (1)" com as 3 páginas', dirsNamed('Seguido A').join() === 'Seguido A,Seguido A (1)' && files(path.join(DL, 'Seguido A (1)')).length === 3);
+        const apiDup = await B(seqSpec('/num/{n}', { end: '2', name: 'Seguido A' }));
+        ok('Duplicado (API sem interface): baixa direto como cópia "Seguido A (2)", sem travar esperando resposta', apiDup.ok && apiDup.title === 'Seguido A (2)' && dirsNamed('Seguido A').length === 3, apiDup.title);
+        // biblioteca mostra as cópias
+        await lib.keyboard.press('Escape'); await sleep(200);
+        await lib.evaluate(() => load()); await sleep(900);
+        const libVols = await lib.evaluate(() => { const s = __libState.data.items.find((i) => i.isLinks); return s ? s.volumes.map((v) => v.title) : []; });
+        ok('Duplicado: a biblioteca lista "Cap Dup", "Cap Dup (1)" e "Cap Dup (2)" na série "Baixados de links"', ['Cap Dup', 'Cap Dup (1)', 'Cap Dup (2)'].every((n) => libVols.includes(n)), libVols.join('|'));
+        await lib.evaluate(() => { document.querySelector('.card.series').click(); }); await sleep(600);
+        await lib.screenshot({ path: path.join(SHOTS, 'link-copias.png') });
+        await lib.evaluate(() => { __libState.series = null; render(); });
+      }
+
       // ---- traduções: as chaves novas existem nos 18 idiomas com as mesmas variáveis
       {
         const LD5 = path.join(ROOT, 'src', 'locales');
         const L5 = fs.readdirSync(LD5).filter((f) => f.endsWith('.json')).map((f) => [f, JSON.parse(fs.readFileSync(path.join(LD5, f), 'utf8'))]);
         const en5 = L5.find(([f]) => f === 'en.json')[1];
-        const keys5 = Object.keys(en5).filter((k) => k.startsWith('link.batch.') || k.startsWith('link.tab.') || k === 'link.p.batch' || k === 'link.p.batchFail');
+        const keys5 = Object.keys(en5).filter((k) => k.startsWith('link.dup.') || k.startsWith('link.batch.') || k.startsWith('link.tab.') || k === 'link.p.batch' || k === 'link.p.batchFail');
         const vars = (s) => (String(s).match(/\{\w+\}/g) || []).sort().join();
         const bad5 = [];
         for (const [f, d] of L5) for (const k of keys5) if (!d[k] || vars(d[k]) !== vars(en5[k])) bad5.push(f + ':' + k);
         const pt = L5.find(([f]) => f === 'pt-BR.json')[1];
-        const untranslated = L5.filter(([f, d]) => f !== 'en.json' && f !== 'pt-BR.json' && ['link.tab.batch', 'link.batch.text', 'link.batch.start', 'link.batch.e.badStep'].some((k) => d[k] === en5[k])).map(([f]) => f);
-        ok(`Lote: ${keys5.length} textos novos nos 18 idiomas, com as mesmas variáveis e traduzidos`, L5.length === 18 && keys5.length >= 50 && bad5.length === 0 && untranslated.length === 0 && pt['link.tab.batch'] === 'Download em lote', JSON.stringify({ n: L5.length, keys: keys5.length, bad5: bad5.slice(0, 5), untranslated }));
+        const untranslated = L5.filter(([f, d]) => f !== 'en.json' && f !== 'pt-BR.json' && ['link.tab.batch', 'link.batch.text', 'link.batch.start', 'link.batch.e.badStep', 'link.dup.yes'].some((k) => d[k] === en5[k])).map(([f]) => f);
+        ok(`Lote: ${keys5.length} textos novos nos 18 idiomas, com as mesmas variáveis e traduzidos`, L5.length === 18 && keys5.length >= 53 && bad5.length === 0 && untranslated.length === 0 && pt['link.tab.batch'] === 'Download em lote', JSON.stringify({ n: L5.length, keys: keys5.length, bad5: bad5.slice(0, 5), untranslated }));
       }
       await new Promise((r) => bserver.close(r));
     }
@@ -995,7 +1085,10 @@ const waitIdle = async (rd) => { for (let i = 0; i < 60; i++) { if (!(await rd.e
     ok('Link: "Apagar baixados" remove tudo, tira a série da biblioteca e o progresso dos capítulos', left.length === 0 && gone && !Object.keys(readCfg().progress).some((k) => k.includes('baixados')), left.join('|'));
     {
       const gone0 = !fs.existsSync(DL);
+      const fbOff = await lib.evaluate(async () => { link.lastFolder = null; openLinkDlg(); await new Promise((r) => setTimeout(r, 400)); const d = document.querySelector('#linkOpenDir').disabled; linkClose(); return d; });
       const r0 = await lib.evaluate(() => window.mangaAPI.openDownloadsDir());
+      const fbOn = await lib.evaluate(async () => { link.lastFolder = null; openLinkDlg(); await new Promise((r) => setTimeout(r, 400)); const d = document.querySelector('#linkOpenDir').disabled; linkClose(); return d; });
+      ok('Botão de pasta: sem nenhum download e sem a pasta "baixados" fica desativado; com a pasta existindo, ativa (abre "Baixados de links")', gone0 && fbOff === true && fbOn === false, JSON.stringify({ fbOff, fbOn }));
       const od = await lib.evaluate(() => window.mangaAPI.testOpenedDirs());
       ok('Abrir pasta: se "baixados" ainda não existe, a pasta é criada antes de abrir', gone0 && r0.ok && fs.existsSync(DL) && od[od.length - 1].mode === 'dir' && od[od.length - 1].path === fs.realpathSync(DL), JSON.stringify({ gone0, r0 }));
     }

@@ -250,5 +250,8 @@
  "link.batch.r.blocked": "ถูกเว็บไซต์บล็อก ({detail})",
  "link.batch.r.noImage": "ไม่พบรูปของหน้า",
  "link.batch.r.network": "เครือข่ายล้มเหลว ({detail})",
- "link.batch.r.other": "ล้มเหลว ({detail})"
+ "link.batch.r.other": "ล้มเหลว ({detail})",
+ "link.dup.title": "มีตอนนี้อยู่แล้ว",
+ "link.dup.text": "มีตอนชื่อ “{name}” อยู่แล้ว คุณอาจเคยดาวน์โหลดมังงะเรื่องนี้ไปแล้ว ต้องการดาวน์โหลดอีกครั้งเป็นสำเนาไหม?",
+ "link.dup.yes": "ดาวน์โหลดต่อไป"
 }
