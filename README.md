@@ -12,12 +12,14 @@ virada de página em 3D com curvatura, sombra e som de papel.
 
 ## Instalar e abrir
 
-| Sistema | Arquivo ([release v0.5.0](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.5.0)) | Como usar |
+| Sistema | Arquivo ([release v1.0.0](https://github.com/cleitinhodev/yomuchu/releases/tag/v1.0.0)) | Como usar |
 |---|---|---|
-| Windows (instalador) | [`Yomuchu-0.5.0-win-x64.exe`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.5.0/Yomuchu-0.5.0-win-x64.exe) | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
-| Linux (qualquer distro) | [`Yomuchu-0.5.0-linux-x64.AppImage`](https://github.com/cleitinhodev/yomuchu/releases/download/v0.5.0/Yomuchu-0.5.0-linux-x64.AppImage) | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
+| Windows (instalador) | [`Yomuchu-1.0.0-win-x64.exe`](https://github.com/cleitinhodev/yomuchu/releases/download/v1.0.0/Yomuchu-1.0.0-win-x64.exe) | Dê dois cliques e siga o instalador. O Windows pode mostrar o aviso "SmartScreen" porque o app não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**. |
+| Linux (qualquer distro) | [`Yomuchu-1.0.0-linux-x64.AppImage`](https://github.com/cleitinhodev/yomuchu/releases/download/v1.0.0/Yomuchu-1.0.0-linux-x64.AppImage) | `chmod +x Yomuchu-*.AppImage` e execute. Precisa do FUSE 2 (`sudo apt install libfuse2`, ou `libfuse2t64` no Ubuntu 24.04+). |
 
-A versão estável anterior, **0.4.2** (sem GIF), continua disponível na [release v0.4.2](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.4.2) e no branch `estavel`.
+A versão estável atual é a **1.0**, no branch `main`. Versões anteriores:
+- **0.5.0** (GIF animado, sem download em lote): [release v0.5.0](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.5.0) e o branch `legado`;
+- **0.4.2** (sem GIF): [release v0.4.2](https://github.com/cleitinhodev/yomuchu/releases/tag/v0.4.2) e o branch `estavel`.
 
 Também dá para abrir uma pasta direto pela linha de comando: `yomuchu "/caminho/do/volume"`.
 
@@ -85,7 +87,7 @@ Na biblioteca, clique com o botão direito numa capa para **ler do início**, **
   - Windows: `%APPDATA%\Yomuchu\`
   - Linux: `~/.config/Yomuchu/`
 
-## Download em lote (branch `teste-lote`)
+## Download em lote
 
 No diálogo **Abrir link** (`Ctrl+L`) há duas abas: **Link único** (tudo como antes) e **Download em lote**, para sites em que
 cada página do capítulo tem o seu próprio endereço.
@@ -107,6 +109,15 @@ cada página do capítulo tem o seu próprio endereço.
   contorna login, paywall, captcha nem proteção.
 - Código: `src/shared/seq.js` (lista, sequências e limites — compartilhado entre a interface e o app), `downloadBatch` em
   `src/linkfetch.js` (constantes `LIMITS.batch*`), aba em `src/library/library.html|js|css`, textos `link.batch.*` nos 18 idiomas.
+
+## Novidades da versão 1.0
+
+- **Download em lote** no diálogo **Abrir link** (`Ctrl+L`): além do link único, dá para baixar um capítulo a partir de vários endereços de uma vez. Há uma aba **Download em lote**, com duas formas:
+  - **Lista de links**: cole os endereços separados por ponto e vírgula, ou um por linha.
+  - **Sequência**: coloque `{n}` no endereço no lugar da parte que muda (números `1…29`, com zeros `01…29`, passo e ordem decrescente; ou letras `a…z`, depois `aa`, `ab`…). Uma pré-visualização mostra quantos links serão visitados.
+  - Cada link contribui com a **maior imagem da página** (as mesmas regras do link único). No máximo 500 links por lote (acima de 100 o app pede confirmação); os que falham são pulados e listados no fim. Detalhes na seção [Download em lote](#download-em-lote).
+- **Botão de pasta** no diálogo: o botão **Baixar e abrir** (ou **Baixar lote e abrir**) **não muda** depois do download — dá para baixar outro em seguida, no link único ou em lote, sem fechar a janela. Um botão de **pasta** (só o ícone, sempre à esquerda; à direita no árabe) abre no gerenciador de arquivos a pasta do último capítulo baixado; sem download nesta sessão, abre a pasta "Baixados de links" se ela existir; senão fica desativado.
+- **Capítulo repetido**: se já existir uma pasta com o mesmo nome, o app avisa ("Você pode já ter baixado este mangá") e, se você confirmar ("Baixar mesmo assim"), cria uma cópia **"Nome (1)"**, **"Nome (2)"**… usando o primeiro número livre, como o Windows.
 
 ## Novidades da versão 0.5.0
 
@@ -144,7 +155,7 @@ Logo abaixo ficam os "papéis" de cada tema (`--bg`, `--panel`, `--text`, `--mut
 
 ## Novidades da versão 0.3.1
 
-- **Abrir pasta**: quando um download de "Abrir link" termina, o diálogo continua aberto com a mensagem de sucesso e o botão **Baixar e abrir** não muda (dá para baixar outro em seguida, no link único ou em lote). O botão de **pasta** (ícone, sempre à esquerda; à direita no árabe) mostra no gerenciador de arquivos a pasta do último capítulo baixado; sem download na sessão abre a pasta "Baixados de links" se ela existir, senão fica desativado. Se já existir uma pasta com o mesmo nome o app avisa ("Você pode já ter baixado este mangá") e, se você confirmar, cria uma cópia "Nome (1)", "Nome (2)"… como o Windows. Há também um **Abrir pasta** ao lado de "Apagar baixados" nas Configurações e dentro da série "Baixados de links", que abre a pasta `baixados` (dentro dos dados do app; ela é criada se ainda não existir).
+- **Abrir pasta**: quando um download de "Abrir link" termina, o diálogo continua aberto com a mensagem de sucesso e o botão **Abrir pasta**, que mostra no gerenciador de arquivos a pasta do capítulo recém-baixado. Há também um **Abrir pasta** ao lado de "Apagar baixados" nas Configurações e dentro da série "Baixados de links", que abre a pasta `baixados` (dentro dos dados do app; ela é criada se ainda não existir).
 - Segurança: o processo principal só abre caminhos que, depois de resolvidos (inclusive atalhos simbólicos), ficam *dentro* da pasta `baixados`; qualquer outro caminho é recusado.
 - Nos testes (`YOMUCHU_TEST_LINKS=1`) nenhuma janela do sistema é aberta: o caminho que seria aberto é só registrado.
 
